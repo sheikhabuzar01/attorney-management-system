@@ -9,6 +9,7 @@ import Hearings from './components/Hearings';
 import Documents from './components/Documents';
 import Tasks from './components/Tasks';
 import Contacts from './components/Contacts';
+import GlobalSearch from './components/GlobalSearch';
 import Login from './components/Login';
 import { Sun, Moon, LogOut, Languages, Menu } from 'lucide-react';
 
@@ -208,7 +209,14 @@ export default function App() {
               </p>
             </div>
           </div>
-          
+
+          <GlobalSearch
+            lang={lang}
+            dbData={dbData}
+            setActiveTab={setActiveTab}
+            setSelectedCaseId={setSelectedCaseId}
+          />
+
           <div className="header-actions" style={{ gap: '0.5rem', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
             {/* Language Switcher */}
             <button 
