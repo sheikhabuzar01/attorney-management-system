@@ -8,6 +8,7 @@ import Cases from './components/Cases';
 import Hearings from './components/Hearings';
 import Documents from './components/Documents';
 import Tasks from './components/Tasks';
+import Contacts from './components/Contacts';
 import Login from './components/Login';
 import { Sun, Moon, LogOut, Languages, Menu } from 'lucide-react';
 
@@ -81,6 +82,7 @@ export default function App() {
       case 'hearings': return t.hearingsTitle;
       case 'documents': return t.documentsTitle;
       case 'tasks': return t.tasksTitle;
+      case 'contacts': return t.contactsTitle;
       default: return t.brandName;
     }
   };
@@ -135,12 +137,19 @@ export default function App() {
         );
       case 'tasks':
         return (
-          <Tasks 
+          <Tasks
             lang={lang}
-            dbData={dbData} 
-            refreshDb={refreshDb} 
+            dbData={dbData}
+            refreshDb={refreshDb}
             setSelectedCaseId={setSelectedCaseId}
             setActiveTab={setActiveTab}
+          />
+        );
+      case 'contacts':
+        return (
+          <Contacts
+            lang={lang}
+            dbData={dbData}
           />
         );
       default:

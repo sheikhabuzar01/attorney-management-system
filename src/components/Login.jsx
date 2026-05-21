@@ -15,7 +15,7 @@ export default function Login({ lang, onLogin, toggleLanguage }) {
     setError('');
 
     if (email === 'admin@lexsuite.com' && password === 'password123') {
-      onLogin({ email, name: 'Abuzar Counsel', role: lang === 'ur' ? 'منیجنگ پارٹنر' : 'Managing Partner' });
+      onLogin({ email, name: 'Attorney Counsel', role: lang === 'ur' ? 'منیجنگ پارٹنر' : 'Managing Partner' });
     } else {
       setError(t.invalidCreds);
     }

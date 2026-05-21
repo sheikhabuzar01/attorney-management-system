@@ -1,11 +1,12 @@
 import React from 'react';
-import { 
-  LayoutDashboard, 
-  Building2, 
-  Scale, 
-  Calendar, 
-  FileText, 
+import {
+  LayoutDashboard,
+  Building2,
+  Scale,
+  Calendar,
+  FileText,
   CheckSquare,
+  PhoneCall,
   LogOut,
   X
 } from 'lucide-react';
@@ -21,6 +22,7 @@ export default function Sidebar({ lang, activeTab, setActiveTab, onLogout, isSid
     { id: 'hearings', label: t.hearings, icon: Calendar },
     { id: 'documents', label: t.documents, icon: FileText },
     { id: 'tasks', label: t.tasks, icon: CheckSquare },
+    { id: 'contacts', label: t.contacts, icon: PhoneCall },
   ];
 
   return (
@@ -61,7 +63,7 @@ export default function Sidebar({ lang, activeTab, setActiveTab, onLogout, isSid
         <div className="user-profile" style={{ marginBottom: '0.5rem' }}>
           <div className="avatar">A</div>
           <div className="user-info">
-            <span className="user-name">{lang === 'ur' ? 'ابوذر وکیل' : 'Abuzar Counsel'}</span>
+            <span className="user-name">{lang === 'ur' ? 'وکیل صاحب' : 'Attorney Counsel'}</span>
             <span className="user-role">{lang === 'ur' ? 'منیجنگ پارٹنر' : 'Managing Partner'}</span>
           </div>
         </div>
