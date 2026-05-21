@@ -9,6 +9,7 @@ import Hearings from './components/Hearings';
 import Documents from './components/Documents';
 import Tasks from './components/Tasks';
 import Contacts from './components/Contacts';
+import TimeBilling from './components/TimeBilling';
 import GlobalSearch from './components/GlobalSearch';
 import NotificationCenter from './components/NotificationCenter';
 import Login from './components/Login';
@@ -85,6 +86,7 @@ export default function App() {
       case 'documents': return t.documentsTitle;
       case 'tasks': return t.tasksTitle;
       case 'contacts': return t.contactsTitle;
+      case 'billing': return t.timeBillingTitle;
       default: return t.brandName;
     }
   };
@@ -152,6 +154,16 @@ export default function App() {
           <Contacts
             lang={lang}
             dbData={dbData}
+          />
+        );
+      case 'billing':
+        return (
+          <TimeBilling
+            lang={lang}
+            dbData={dbData}
+            refreshDb={refreshDb}
+            setActiveTab={setActiveTab}
+            setSelectedCaseId={setSelectedCaseId}
           />
         );
       default:

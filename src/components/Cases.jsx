@@ -19,7 +19,8 @@ import {
   Edit3,
   Check,
   Printer,
-  StickyNote
+  StickyNote,
+  Timer
 } from 'lucide-react';
 import { db } from '../db/mockDb';
 import { translations } from '../db/translations';
@@ -99,6 +100,17 @@ export default function Cases({ lang, dbData, refreshDb, selectedCaseId, setSele
   // Notes draft (for Notes tab)
   const [noteDraft, setNoteDraft] = useState({ body: '', author: '' });
 
+  // Time entry draft (for Time Log tab)
+  const todayIso = new Date().toISOString().split('T')[0];
+  const defaultRate = parseFloat(localStorage.getItem('lexsuite_default_rate') || '0') || 0;
+  const [timeDraft, setTimeDraft] = useState({
+    date: todayIso,
+    hours: '',
+    rate: defaultRate,
+    description: '',
+    attorneyName: ''
+  });
+
   // Dynamically filter branches based on organization selection in the form
   const [formBranches, setFormBranches] = useState([]);
   
@@ -124,6 +136,16 @@ export default function Cases({ lang, dbData, refreshDb, selectedCaseId, setSele
   const caseNotes = selectedCase && Array.isArray(dbData.caseNotes)
     ? [...dbData.caseNotes].filter(n => n.caseId === selectedCase.id).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     : [];
+  const caseTimeEntries = selectedCase && Array.isArray(dbData.timeEntries)
+    ? [...dbData.timeEntries].filter(te => te.caseId === selectedCase.id).sort((a, b) => new Date(b.date) - new Date(a.date))
+    : [];
+  const caseTimeTotal = caseTimeEntries.reduce(
+    (acc, te) => ({
+      hours: acc.hours + (Number(te.hours) || 0),
+      amount: acc.amount + (Number(te.hours) || 0) * (Number(te.rate) || 0)
+    }),
+    { hours: 0, amount: 0 }
+  );
 
   // Filter logic
   const filteredCases = cases.filter((c) => {
@@ -270,6 +292,37 @@ export default function Cases({ lang, dbData, refreshDb, selectedCaseId, setSele
   const handleDeleteNote = (id) => {
     if (window.confirm(t.deleteNoteConfirm)) {
       db.deleteNote(id);
+      refreshDb();
+    }
+  };
+
+  const handleAddTimeEntry = (e) => {
+    e.preventDefault();
+    if (!selectedCaseId || !timeDraft.hours || Number(timeDraft.hours) <= 0) return;
+    db.addTimeEntry({
+      caseId: selectedCaseId,
+      date: timeDraft.date,
+      hours: Number(timeDraft.hours),
+      rate: Number(timeDraft.rate),
+      description: timeDraft.description.trim(),
+      attorneyName: timeDraft.attorneyName.trim()
+    });
+    if (timeDraft.rate && Number(timeDraft.rate) > 0) {
+      localStorage.setItem('lexsuite_default_rate', String(Number(timeDraft.rate)));
+    }
+    setTimeDraft({
+      date: todayIso,
+      hours: '',
+      rate: Number(timeDraft.rate) || defaultRate,
+      description: '',
+      attorneyName: timeDraft.attorneyName
+    });
+    refreshDb();
+  };
+
+  const handleDeleteTimeEntry = (id) => {
+    if (window.confirm(t.deleteTimeEntryConfirm)) {
+      db.deleteTimeEntry(id);
       refreshDb();
     }
   };
@@ -483,7 +536,8 @@ export default function Cases({ lang, dbData, refreshDb, selectedCaseId, setSele
                 { id: 'hearings', label: `${t.hearingsTab} (${caseHearings.length})`, icon: Calendar },
                 { id: 'documents', label: `${t.documentsTab} (${caseDocs.length})`, icon: FileText },
                 { id: 'tasks', label: `${t.tasksTab} (${caseTasks.length})`, icon: CheckSquare },
-                { id: 'notes', label: `${t.notesTab} (${caseNotes.length})`, icon: StickyNote }
+                { id: 'notes', label: `${t.notesTab} (${caseNotes.length})`, icon: StickyNote },
+                { id: 'time', label: `${t.timeLogTab} (${caseTimeEntries.length})`, icon: Timer }
               ].map(tab => {
                 const TabIcon = tab.icon;
                 return (
@@ -1106,6 +1160,141 @@ export default function Cases({ lang, dbData, refreshDb, selectedCaseId, setSele
                           </div>
                         </div>
                       ))
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Tab 6: Time Log */}
+              {activeDetailTab === 'time' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+
+                  {/* Quick add time entry */}
+                  <form onSubmit={handleAddTimeEntry} style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', padding: '0.85rem', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--bg-primary)' }}>
+                    <div style={{ flex: '1 1 130px', minWidth: 0 }}>
+                      <label className="form-label" style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{t.timeEntryDate}</label>
+                      <input
+                        type="date"
+                        className="form-control"
+                        style={{ padding: '0.4rem 0.55rem', fontSize: '0.82rem' }}
+                        required
+                        value={timeDraft.date}
+                        onChange={e => setTimeDraft({ ...timeDraft, date: e.target.value })}
+                      />
+                    </div>
+                    <div style={{ flex: '0 1 90px', minWidth: 0 }}>
+                      <label className="form-label" style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{t.timeEntryHours}</label>
+                      <input
+                        type="number"
+                        step="0.25"
+                        min="0"
+                        className="form-control"
+                        style={{ padding: '0.4rem 0.55rem', fontSize: '0.82rem' }}
+                        required
+                        placeholder="1.5"
+                        value={timeDraft.hours}
+                        onChange={e => setTimeDraft({ ...timeDraft, hours: e.target.value })}
+                      />
+                    </div>
+                    <div style={{ flex: '0 1 110px', minWidth: 0 }}>
+                      <label className="form-label" style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{t.timeEntryRate}</label>
+                      <input
+                        type="number"
+                        step="100"
+                        min="0"
+                        className="form-control"
+                        style={{ padding: '0.4rem 0.55rem', fontSize: '0.82rem' }}
+                        placeholder="5000"
+                        value={timeDraft.rate}
+                        onChange={e => setTimeDraft({ ...timeDraft, rate: e.target.value })}
+                      />
+                    </div>
+                    <div style={{ flex: '2 1 180px', minWidth: 0 }}>
+                      <label className="form-label" style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{t.timeEntryDescription}</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        style={{ padding: '0.4rem 0.55rem', fontSize: '0.82rem' }}
+                        placeholder={t.timeEntryDescriptionPlaceholder}
+                        value={timeDraft.description}
+                        onChange={e => setTimeDraft({ ...timeDraft, description: e.target.value })}
+                      />
+                    </div>
+                    <div style={{ flex: '1 1 150px', minWidth: 0 }}>
+                      <label className="form-label" style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{t.timeEntryAttorney}</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        style={{ padding: '0.4rem 0.55rem', fontSize: '0.82rem' }}
+                        placeholder={t.timeEntryAttorneyPlaceholder}
+                        value={timeDraft.attorneyName}
+                        onChange={e => setTimeDraft({ ...timeDraft, attorneyName: e.target.value })}
+                      />
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                      <button type="submit" className="btn btn-primary btn-sm" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
+                        <Plus size={13} /> {t.saveTimeEntry}
+                      </button>
+                    </div>
+                  </form>
+
+                  {/* Totals strip */}
+                  {caseTimeEntries.length > 0 && (
+                    <div style={{ display: 'flex', gap: '1rem', padding: '0.5rem 0.85rem', backgroundColor: 'var(--primary-light)', borderRadius: 'var(--radius-md)', fontSize: '0.82rem', flexDirection: lang === 'ur' ? 'row-reverse' : 'row', flexWrap: 'wrap' }}>
+                      <span><strong>{t.totalHours}:</strong> {caseTimeTotal.hours.toFixed(2)}</span>
+                      <span><strong>{t.totalAmount}:</strong> {caseTimeTotal.amount.toLocaleString(lang === 'ur' ? 'ur-PK' : 'en-US')}</span>
+                    </div>
+                  )}
+
+                  {/* Entries list */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    {caseTimeEntries.length === 0 ? (
+                      <p style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '2rem 0', fontSize: '0.9rem', fontStyle: 'italic' }}>{t.noTimeEntries}</p>
+                    ) : (
+                      caseTimeEntries.map(te => {
+                        const amount = (Number(te.hours) || 0) * (Number(te.rate) || 0);
+                        return (
+                          <div
+                            key={te.id}
+                            style={{
+                              padding: '0.65rem 0.85rem',
+                              border: '1px solid var(--border-color)',
+                              borderRadius: 'var(--radius-md)',
+                              backgroundColor: te.invoiceId ? 'var(--bg-primary)' : 'var(--bg-secondary)',
+                              opacity: te.invoiceId ? 0.75 : 1,
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: '0.3rem',
+                              textAlign: lang === 'ur' ? 'right' : 'left'
+                            }}
+                          >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem', flexDirection: lang === 'ur' ? 'row-reverse' : 'row', flexWrap: 'wrap' }}>
+                              <div style={{ minWidth: 0, flex: 1 }}>
+                                <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>{te.description || '—'}</div>
+                                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
+                                  {te.date}{te.attorneyName && ` · ${te.attorneyName}`}
+                                  {te.invoiceId && ` · ${t.invoiceStatusSent}`}
+                                </div>
+                              </div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
+                                <div style={{ fontSize: '0.82rem', fontWeight: 600, textAlign: lang === 'ur' ? 'left' : 'right' }}>
+                                  {te.hours}h × {Number(te.rate).toLocaleString(lang === 'ur' ? 'ur-PK' : 'en-US')}
+                                  <div style={{ fontSize: '0.75rem', color: 'var(--primary)' }}>{amount.toLocaleString(lang === 'ur' ? 'ur-PK' : 'en-US')} {te.currency || 'PKR'}</div>
+                                </div>
+                                {!te.invoiceId && (
+                                  <button
+                                    className="btn btn-secondary btn-sm text-danger"
+                                    style={{ padding: '0.15rem 0.35rem', border: 'none' }}
+                                    onClick={() => handleDeleteTimeEntry(te.id)}
+                                  >
+                                    <Trash2 size={11} />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })
                     )}
                   </div>
                 </div>

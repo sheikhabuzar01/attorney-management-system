@@ -1816,7 +1816,8 @@ textarea.form-control {
 }
 
 /* ------------------ Print / PDF Export ------------------ */
-.case-print-report {
+.case-print-report,
+.invoice-print-report {
   display: none;
 }
 
@@ -1851,7 +1852,8 @@ textarea.form-control {
     background: #ffffff !important;
   }
 
-  .case-print-report {
+  .case-print-report,
+  .invoice-print-report {
     display: block !important;
     position: static !important;
     background: #ffffff !important;
@@ -1863,22 +1865,65 @@ textarea.form-control {
     line-height: 1.4;
   }
 
-  .case-print-report .print-header {
+  /* Only show invoice print report when explicitly printing invoice */
+  body:not(.printing-invoice) .invoice-print-report {
+    display: none !important;
+  }
+  body.printing-invoice .case-print-report {
+    display: none !important;
+  }
+
+  .case-print-report .print-header,
+  .invoice-print-report .print-header {
     border-bottom: 2px solid #000;
     padding-bottom: 0.5rem;
     margin-bottom: 1rem;
   }
 
-  .case-print-report .print-header h1 {
+  .case-print-report .print-header h1,
+  .invoice-print-report .print-header h1 {
     font-family: var(--font-display);
     font-size: 20pt;
     font-weight: 700;
     margin: 0 0 0.25rem;
   }
 
-  .case-print-report .print-meta {
+  .case-print-report .print-meta,
+  .invoice-print-report .print-meta {
     font-size: 9pt;
     color: #444;
+  }
+
+  .invoice-print-report .print-kv-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem 1rem;
+    font-size: 10.5pt;
+    margin-bottom: 0.5rem;
+  }
+
+  .invoice-print-report .print-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10pt;
+  }
+
+  .invoice-print-report .print-table th,
+  .invoice-print-report .print-table td {
+    border: 1px solid #555;
+    padding: 5pt 7pt;
+    text-align: start;
+    vertical-align: top;
+  }
+
+  .invoice-print-report .print-table th {
+    background: #eee !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .invoice-print-report .print-table tfoot td {
+    border-top: 2px solid #000;
   }
 
   .case-print-report .print-section {

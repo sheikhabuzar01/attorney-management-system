@@ -182,6 +182,8 @@ const initialData = {
     }
   ],
   caseNotes: [],
+  timeEntries: [],
+  invoices: [],
   documents: [
     {
       id: 'doc-1',
@@ -313,6 +315,12 @@ class AttorneyDb {
     if (!Array.isArray(data.caseNotes)) {
       data.caseNotes = [];
     }
+    if (!Array.isArray(data.timeEntries)) {
+      data.timeEntries = [];
+    }
+    if (!Array.isArray(data.invoices)) {
+      data.invoices = [];
+    }
     if (Array.isArray(data.hearings)) {
       data.hearings = data.hearings.map(h => ({
         ...h,
@@ -364,6 +372,8 @@ class AttorneyDb {
     data.tasks = data.tasks.filter(t => !caseIds.includes(t.caseId));
     data.hearings = data.hearings.filter(h => !caseIds.includes(h.caseId));
     data.caseNotes = (data.caseNotes || []).filter(n => !caseIds.includes(n.caseId));
+    data.timeEntries = (data.timeEntries || []).filter(te => !caseIds.includes(te.caseId));
+    data.invoices = (data.invoices || []).filter(inv => inv.orgId !== id);
 
     this._save(data);
   }
@@ -395,6 +405,7 @@ class AttorneyDb {
     data.tasks = data.tasks.filter(t => !caseIds.includes(t.caseId));
     data.hearings = data.hearings.filter(h => !caseIds.includes(h.caseId));
     data.caseNotes = (data.caseNotes || []).filter(n => !caseIds.includes(n.caseId));
+    data.timeEntries = (data.timeEntries || []).filter(te => !caseIds.includes(te.caseId));
 
     this._save(data);
   }
@@ -427,6 +438,7 @@ class AttorneyDb {
     data.tasks = data.tasks.filter(t => t.caseId !== id);
     data.hearings = data.hearings.filter(h => h.caseId !== id);
     data.caseNotes = (data.caseNotes || []).filter(n => n.caseId !== id);
+    data.timeEntries = (data.timeEntries || []).filter(te => te.caseId !== id);
     this._save(data);
   }
 
@@ -555,6 +567,118 @@ class AttorneyDb {
     return (data.caseNotes || [])
       .filter(n => n.caseId === caseId)
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  }
+
+  // --- TIME ENTRIES ---
+  addTimeEntry(entry) {
+    const data = this._load();
+    if (!Array.isArray(data.timeEntries)) data.timeEntries = [];
+    const newEntry = {
+      id: `time-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      caseId: entry.caseId,
+      attorneyName: entry.attorneyName || '',
+      date: entry.date || new Date().toISOString().split('T')[0],
+      hours: Number(entry.hours) || 0,
+      rate: Number(entry.rate) || 0,
+      currency: entry.currency || 'PKR',
+      description: entry.description || '',
+      billable: entry.billable !== false,
+      invoiceId: null
+    };
+    data.timeEntries.push(newEntry);
+    this._save(data);
+    return newEntry;
+  }
+
+  updateTimeEntry(id, patch) {
+    const data = this._load();
+    data.timeEntries = (data.timeEntries || []).map(te => te.id === id ? { ...te, ...patch } : te);
+    this._save(data);
+    return data.timeEntries.find(te => te.id === id);
+  }
+
+  deleteTimeEntry(id) {
+    const data = this._load();
+    data.timeEntries = (data.timeEntries || []).filter(te => te.id !== id);
+    this._save(data);
+  }
+
+  getTimeForCase(caseId) {
+    const data = this._load();
+    return (data.timeEntries || [])
+      .filter(te => te.caseId === caseId)
+      .sort((a, b) => new Date(b.date) - new Date(a.date));
+  }
+
+  // --- INVOICES ---
+  createInvoice({ orgId, invoiceNumber, issueDate, dueDate, taxPercent = 0, notes = '', currency = 'PKR' }, timeEntryIds = []) {
+    const data = this._load();
+    if (!Array.isArray(data.invoices)) data.invoices = [];
+    if (!Array.isArray(data.timeEntries)) data.timeEntries = [];
+
+    const entries = data.timeEntries.filter(te => timeEntryIds.includes(te.id) && !te.invoiceId);
+    const lineItems = entries.map(te => ({
+      timeEntryId: te.id,
+      description: te.description || '',
+      date: te.date,
+      hours: Number(te.hours) || 0,
+      rate: Number(te.rate) || 0,
+      amount: (Number(te.hours) || 0) * (Number(te.rate) || 0)
+    }));
+    const subtotal = lineItems.reduce((sum, li) => sum + li.amount, 0);
+    const tax = subtotal * (Number(taxPercent) || 0) / 100;
+    const total = subtotal + tax;
+
+    const newInvoice = {
+      id: `invoice-${Date.now()}`,
+      orgId,
+      invoiceNumber: invoiceNumber || `INV-${Date.now()}`,
+      issueDate: issueDate || new Date().toISOString().split('T')[0],
+      dueDate: dueDate || '',
+      currency,
+      taxPercent: Number(taxPercent) || 0,
+      lineItems,
+      subtotal,
+      tax,
+      total,
+      status: 'Draft',
+      notes
+    };
+    data.invoices.push(newInvoice);
+
+    // Link time entries to invoice
+    data.timeEntries = data.timeEntries.map(te =>
+      timeEntryIds.includes(te.id) && !te.invoiceId
+        ? { ...te, invoiceId: newInvoice.id }
+        : te
+    );
+
+    this._save(data);
+    return newInvoice;
+  }
+
+  updateInvoiceStatus(id, status) {
+    const data = this._load();
+    data.invoices = (data.invoices || []).map(inv => inv.id === id ? { ...inv, status } : inv);
+    this._save(data);
+    return data.invoices.find(inv => inv.id === id);
+  }
+
+  deleteInvoice(id) {
+    const data = this._load();
+    data.invoices = (data.invoices || []).filter(inv => inv.id !== id);
+    // Unlink time entries
+    data.timeEntries = (data.timeEntries || []).map(te =>
+      te.invoiceId === id ? { ...te, invoiceId: null } : te
+    );
+    this._save(data);
+  }
+
+  getInvoicesForOrg(orgId) {
+    const data = this._load();
+    return (data.invoices || [])
+      .filter(inv => inv.orgId === orgId)
+      .sort((a, b) => new Date(b.issueDate) - new Date(a.issueDate));
   }
 }
 

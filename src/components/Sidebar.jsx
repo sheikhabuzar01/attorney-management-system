@@ -7,6 +7,7 @@ import {
   FileText,
   CheckSquare,
   PhoneCall,
+  DollarSign,
   LogOut,
   X
 } from 'lucide-react';
@@ -23,6 +24,7 @@ export default function Sidebar({ lang, activeTab, setActiveTab, onLogout, isSid
     { id: 'documents', label: t.documents, icon: FileText },
     { id: 'tasks', label: t.tasks, icon: CheckSquare },
     { id: 'contacts', label: t.contacts, icon: PhoneCall },
+    { id: 'billing', label: t.timeBilling, icon: DollarSign },
   ];
 
   return (
