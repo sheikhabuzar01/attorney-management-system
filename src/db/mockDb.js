@@ -143,7 +143,9 @@ const initialData = {
       time: '10:00 AM',
       purpose: 'Admissibility Arguments & Interim Stay Order',
       courtroom: 'Courtroom 3, Lahore High Court',
-      status: 'Scheduled'
+      status: 'Scheduled',
+      outcome: 'Scheduled',
+      notes: ''
     },
     {
       id: 'hearing-2',
@@ -152,7 +154,9 @@ const initialData = {
       time: '02:00 PM',
       purpose: 'LESCO Tariffs Verification & Interim Stay Order',
       courtroom: 'Session Court Room 14, Lahore',
-      status: 'Scheduled'
+      status: 'Scheduled',
+      outcome: 'Scheduled',
+      notes: ''
     },
     {
       id: 'hearing-3',
@@ -161,7 +165,9 @@ const initialData = {
       time: '09:30 AM',
       purpose: 'Witness Cross Examination (Bank Manager)',
       courtroom: 'High Court Annex Building Room B',
-      status: 'Scheduled'
+      status: 'Scheduled',
+      outcome: 'Scheduled',
+      notes: ''
     },
     {
       id: 'hearing-4',
@@ -170,9 +176,12 @@ const initialData = {
       time: '11:00 AM',
       purpose: 'Overtime Audit Presentation',
       courtroom: 'Sessions Court Block C, Room 4',
-      status: 'Scheduled'
+      status: 'Scheduled',
+      outcome: 'Scheduled',
+      notes: ''
     }
   ],
+  caseNotes: [],
   documents: [
     {
       id: 'doc-1',
@@ -300,6 +309,17 @@ class AttorneyDb {
       this._save(initialData);
       return JSON.parse(JSON.stringify(initialData));
     }
+    // Forward-compat migrations for newly added schema
+    if (!Array.isArray(data.caseNotes)) {
+      data.caseNotes = [];
+    }
+    if (Array.isArray(data.hearings)) {
+      data.hearings = data.hearings.map(h => ({
+        ...h,
+        outcome: h.outcome || 'Scheduled',
+        notes: typeof h.notes === 'string' ? h.notes : ''
+      }));
+    }
     return data;
   }
 
@@ -343,6 +363,7 @@ class AttorneyDb {
     data.documents = data.documents.filter(d => d.orgId !== id && !caseIds.includes(d.caseId));
     data.tasks = data.tasks.filter(t => !caseIds.includes(t.caseId));
     data.hearings = data.hearings.filter(h => !caseIds.includes(h.caseId));
+    data.caseNotes = (data.caseNotes || []).filter(n => !caseIds.includes(n.caseId));
 
     this._save(data);
   }
@@ -366,13 +387,14 @@ class AttorneyDb {
   deleteBranch(id) {
     const data = this._load();
     data.branches = data.branches.filter(b => b.id !== id);
-    
+
     // Find all cases associated with this branch to clean up
     const caseIds = data.cases.filter(c => c.branchId === id).map(c => c.id);
     data.cases = data.cases.filter(c => c.branchId !== id);
     data.documents = data.documents.filter(d => !caseIds.includes(d.caseId));
     data.tasks = data.tasks.filter(t => !caseIds.includes(t.caseId));
     data.hearings = data.hearings.filter(h => !caseIds.includes(h.caseId));
+    data.caseNotes = (data.caseNotes || []).filter(n => !caseIds.includes(n.caseId));
 
     this._save(data);
   }
@@ -404,13 +426,20 @@ class AttorneyDb {
     data.documents = data.documents.filter(d => d.caseId !== id);
     data.tasks = data.tasks.filter(t => t.caseId !== id);
     data.hearings = data.hearings.filter(h => h.caseId !== id);
+    data.caseNotes = (data.caseNotes || []).filter(n => n.caseId !== id);
     this._save(data);
   }
 
   // --- HEARINGS ---
   addHearing(h) {
     const data = this._load();
-    const newHearing = { id: `hearing-${Date.now()}`, ...h, status: h.status || 'Scheduled' };
+    const newHearing = {
+      id: `hearing-${Date.now()}`,
+      ...h,
+      status: h.status || 'Scheduled',
+      outcome: h.outcome || 'Scheduled',
+      notes: typeof h.notes === 'string' ? h.notes : ''
+    };
     data.hearings.push(newHearing);
     this._save(data);
     return newHearing;
@@ -497,6 +526,35 @@ class AttorneyDb {
       data.tasks.push(task);
       this._save(data);
     }
+  }
+
+  // --- CASE NOTES ---
+  addNote(note) {
+    const data = this._load();
+    if (!Array.isArray(data.caseNotes)) data.caseNotes = [];
+    const newNote = {
+      id: `note-${Date.now()}`,
+      caseId: note.caseId,
+      body: note.body || '',
+      author: note.author || '',
+      createdAt: new Date().toISOString()
+    };
+    data.caseNotes.push(newNote);
+    this._save(data);
+    return newNote;
+  }
+
+  deleteNote(id) {
+    const data = this._load();
+    data.caseNotes = (data.caseNotes || []).filter(n => n.id !== id);
+    this._save(data);
+  }
+
+  getNotesForCase(caseId) {
+    const data = this._load();
+    return (data.caseNotes || [])
+      .filter(n => n.caseId === caseId)
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   }
 }
 

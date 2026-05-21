@@ -1,25 +1,49 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Scale, 
-  Plus, 
-  Search, 
-  Filter, 
-  Trash2, 
+import {
+  Scale,
+  Plus,
+  Search,
+  Filter,
+  Trash2,
   ExternalLink,
-  Calendar, 
-  FileText, 
-  CheckSquare, 
-  User, 
-  Bookmark, 
+  Calendar,
+  FileText,
+  CheckSquare,
+  User,
+  Bookmark,
   Info,
   X,
   MapPin,
   Clock,
   Download,
-  Edit3
+  Edit3,
+  Check,
+  Printer,
+  StickyNote
 } from 'lucide-react';
 import { db } from '../db/mockDb';
 import { translations } from '../db/translations';
+import { getOutcomeLabel } from './Hearings';
+
+const OUTCOME_KEYS = [
+  'Scheduled',
+  'Adjourned',
+  'Disposed',
+  'Order Reserved',
+  'Order Granted',
+  'Order Denied',
+  'No Show'
+];
+
+const OUTCOME_BADGE_CLASS = {
+  'Scheduled': 'badge-active',
+  'Adjourned': 'badge-pending',
+  'Disposed': 'badge-closed',
+  'Order Reserved': 'badge-medium',
+  'Order Granted': 'badge-low',
+  'Order Denied': 'badge-high',
+  'No Show': 'badge-high'
+};
 
 export default function Cases({ lang, dbData, refreshDb, selectedCaseId, setSelectedCaseId }) {
   const { organizations, branches, cases, hearings, documents, tasks } = dbData;
@@ -68,6 +92,13 @@ export default function Cases({ lang, dbData, refreshDb, selectedCaseId, setSele
     branchId: ''
   });
 
+  // Outcome editor (per hearing inside case detail)
+  const [outcomeEditId, setOutcomeEditId] = useState(null);
+  const [outcomeDraft, setOutcomeDraft] = useState({ outcome: 'Scheduled', notes: '' });
+
+  // Notes draft (for Notes tab)
+  const [noteDraft, setNoteDraft] = useState({ body: '', author: '' });
+
   // Dynamically filter branches based on organization selection in the form
   const [formBranches, setFormBranches] = useState([]);
   
@@ -90,6 +121,9 @@ export default function Cases({ lang, dbData, refreshDb, selectedCaseId, setSele
   const caseHearings = selectedCase ? hearings.filter(h => h.caseId === selectedCase.id) : [];
   const caseDocs = selectedCase ? documents.filter(d => d.caseId === selectedCase.id) : [];
   const caseTasks = selectedCase ? tasks.filter(t => t.caseId === selectedCase.id) : [];
+  const caseNotes = selectedCase && Array.isArray(dbData.caseNotes)
+    ? [...dbData.caseNotes].filter(n => n.caseId === selectedCase.id).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    : [];
 
   // Filter logic
   const filteredCases = cases.filter((c) => {
@@ -206,6 +240,46 @@ export default function Cases({ lang, dbData, refreshDb, selectedCaseId, setSele
   const handleToggleTask = (taskId, currentStatus) => {
     db.updateTask(taskId, { status: currentStatus === 'Completed' ? 'Pending' : 'Completed' });
     refreshDb();
+  };
+
+  const openOutcomeEditor = (h) => {
+    setOutcomeEditId(h.id);
+    setOutcomeDraft({ outcome: h.outcome || 'Scheduled', notes: h.notes || '' });
+  };
+
+  const cancelOutcomeEditor = () => {
+    setOutcomeEditId(null);
+    setOutcomeDraft({ outcome: 'Scheduled', notes: '' });
+  };
+
+  const saveOutcome = (e, hearingId) => {
+    e.preventDefault();
+    db.updateHearing(hearingId, { outcome: outcomeDraft.outcome, notes: outcomeDraft.notes });
+    cancelOutcomeEditor();
+    refreshDb();
+  };
+
+  const handleAddNote = (e) => {
+    e.preventDefault();
+    if (!noteDraft.body.trim() || !selectedCaseId) return;
+    db.addNote({ caseId: selectedCaseId, body: noteDraft.body.trim(), author: noteDraft.author.trim() });
+    setNoteDraft({ body: '', author: '' });
+    refreshDb();
+  };
+
+  const handleDeleteNote = (id) => {
+    if (window.confirm(t.deleteNoteConfirm)) {
+      db.deleteNote(id);
+      refreshDb();
+    }
+  };
+
+  const handlePrintCase = () => {
+    document.body.classList.add('printing-case');
+    setTimeout(() => {
+      window.print();
+      setTimeout(() => document.body.classList.remove('printing-case'), 500);
+    }, 50);
   };
 
   const handleStageChange = (caseId, newStage) => {
@@ -408,7 +482,8 @@ export default function Cases({ lang, dbData, refreshDb, selectedCaseId, setSele
                 { id: 'overview', label: t.caseSummaryTab, icon: Info },
                 { id: 'hearings', label: `${t.hearingsTab} (${caseHearings.length})`, icon: Calendar },
                 { id: 'documents', label: `${t.documentsTab} (${caseDocs.length})`, icon: FileText },
-                { id: 'tasks', label: `${t.tasksTab} (${caseTasks.length})`, icon: CheckSquare }
+                { id: 'tasks', label: `${t.tasksTab} (${caseTasks.length})`, icon: CheckSquare },
+                { id: 'notes', label: `${t.notesTab} (${caseNotes.length})`, icon: StickyNote }
               ].map(tab => {
                 const TabIcon = tab.icon;
                 return (
@@ -706,19 +781,71 @@ export default function Cases({ lang, dbData, refreshDb, selectedCaseId, setSele
                     {caseHearings.length === 0 ? (
                       <p style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '2rem 0' }}>{lang === 'ur' ? 'کوئی سماعت طے نہیں ہے۔' : 'No hearings scheduled.'}</p>
                     ) : (
-                      caseHearings.map(h => (
-                        <div key={h.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1rem', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
-                          <div>
-                            <span style={{ fontWeight: '600', fontSize: '0.9rem' }}>{h.purpose}</span>
-                            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'flex', gap: '0.5rem', marginTop: '0.15rem', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
-                              <span style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}><Clock size={12} /> {h.hearingDate} at {h.time || 'TBD'}</span>
-                              <span>•</span>
-                              <span>{h.courtroom || 'No courtroom assigned'}</span>
+                      caseHearings.map(h => {
+                        const isEditingOutcome = outcomeEditId === h.id;
+                        const outcome = h.outcome || 'Scheduled';
+                        const badgeCls = OUTCOME_BADGE_CLASS[outcome] || 'badge-active';
+                        return (
+                          <div key={h.id} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', padding: '0.75rem 1rem', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
+                              <div style={{ minWidth: 0, flex: 1, textAlign: lang === 'ur' ? 'right' : 'left' }}>
+                                <span style={{ fontWeight: '600', fontSize: '0.9rem' }}>{h.purpose}</span>
+                                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'flex', gap: '0.5rem', marginTop: '0.15rem', flexWrap: 'wrap', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
+                                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}><Clock size={12} /> {h.hearingDate} at {h.time || 'TBD'}</span>
+                                  <span>•</span>
+                                  <span>{h.courtroom || 'No courtroom assigned'}</span>
+                                </div>
+                              </div>
+                              <span className={`badge ${badgeCls}`} style={{ fontSize: '0.7rem', flexShrink: 0 }}>{getOutcomeLabel(outcome, t)}</span>
                             </div>
+
+                            {h.notes && !isEditingOutcome && (
+                              <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', backgroundColor: 'var(--bg-primary)', padding: '0.5rem 0.65rem', borderRadius: 'var(--radius-sm)', borderInlineStart: '2px solid var(--primary)', textAlign: lang === 'ur' ? 'right' : 'left' }}>
+                                {h.notes}
+                              </div>
+                            )}
+
+                            {!isEditingOutcome ? (
+                              <div style={{ display: 'flex', justifyContent: 'flex-end', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
+                                <button
+                                  className="btn btn-secondary btn-sm"
+                                  style={{ padding: '0.2rem 0.55rem', fontSize: '0.72rem', display: 'flex', alignItems: 'center', gap: '0.3rem', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}
+                                  onClick={() => openOutcomeEditor(h)}
+                                >
+                                  <Edit3 size={11} /> {t.updateOutcome}
+                                </button>
+                              </div>
+                            ) : (
+                              <form onSubmit={(e) => saveOutcome(e, h.id)} style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', padding: '0.5rem', backgroundColor: 'var(--bg-primary)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}>
+                                <select
+                                  className="form-control"
+                                  style={{ padding: '0.35rem 0.5rem', fontSize: '0.82rem' }}
+                                  value={outcomeDraft.outcome}
+                                  onChange={e => setOutcomeDraft({ ...outcomeDraft, outcome: e.target.value })}
+                                >
+                                  {OUTCOME_KEYS.map(k => <option key={k} value={k}>{getOutcomeLabel(k, t)}</option>)}
+                                </select>
+                                <textarea
+                                  className="form-control"
+                                  rows={2}
+                                  placeholder={t.outcomeNotesPlaceholder}
+                                  style={{ padding: '0.35rem 0.5rem', fontSize: '0.82rem', minHeight: '52px' }}
+                                  value={outcomeDraft.notes}
+                                  onChange={e => setOutcomeDraft({ ...outcomeDraft, notes: e.target.value })}
+                                />
+                                <div style={{ display: 'flex', gap: '0.4rem', justifyContent: 'flex-end', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
+                                  <button type="button" className="btn btn-secondary btn-sm" onClick={cancelOutcomeEditor} style={{ padding: '0.25rem 0.55rem', fontSize: '0.72rem' }}>
+                                    {t.cancel}
+                                  </button>
+                                  <button type="submit" className="btn btn-primary btn-sm" style={{ padding: '0.25rem 0.55rem', fontSize: '0.72rem', display: 'flex', alignItems: 'center', gap: '0.3rem', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
+                                    <Check size={11} /> {t.saveOutcome}
+                                  </button>
+                                </div>
+                              </form>
+                            )}
                           </div>
-                          <span className="badge badge-active" style={{ fontSize: '0.7rem' }}>{lang === 'ur' && h.status === 'Scheduled' ? 'طے شدہ' : h.status}</span>
-                        </div>
-                      ))
+                        );
+                      })
                     )}
                   </div>
                 </div>
@@ -915,9 +1042,85 @@ export default function Cases({ lang, dbData, refreshDb, selectedCaseId, setSele
                 </div>
               )}
 
+              {/* Tab 5: Notes */}
+              {activeDetailTab === 'notes' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+
+                  {/* Add Note form */}
+                  <form onSubmit={handleAddNote} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', padding: '0.85rem', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--bg-primary)' }}>
+                    <textarea
+                      className="form-control"
+                      rows={3}
+                      placeholder={t.noteBodyPlaceholder}
+                      style={{ padding: '0.5rem 0.65rem', fontSize: '0.85rem', minHeight: '70px' }}
+                      required
+                      value={noteDraft.body}
+                      onChange={e => setNoteDraft({ ...noteDraft, body: e.target.value })}
+                    />
+                    <div style={{ display: 'flex', gap: '0.5rem', flexDirection: lang === 'ur' ? 'row-reverse' : 'row', flexWrap: 'wrap' }}>
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder={t.noteAuthorPlaceholder}
+                        style={{ padding: '0.4rem 0.6rem', fontSize: '0.8rem', flex: '1 1 160px', minWidth: 0 }}
+                        value={noteDraft.author}
+                        onChange={e => setNoteDraft({ ...noteDraft, author: e.target.value })}
+                      />
+                      <button type="submit" className="btn btn-primary btn-sm" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
+                        <Plus size={13} /> {t.addNoteBtn}
+                      </button>
+                    </div>
+                  </form>
+
+                  {/* Notes list */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+                    {caseNotes.length === 0 ? (
+                      <p style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '2rem 0', fontSize: '0.9rem', fontStyle: 'italic' }}>{t.noNotes}</p>
+                    ) : (
+                      caseNotes.map(n => (
+                        <div
+                          key={n.id}
+                          style={{
+                            padding: '0.75rem 0.85rem',
+                            border: '1px solid var(--border-color)',
+                            borderRadius: 'var(--radius-md)',
+                            backgroundColor: 'var(--bg-secondary)',
+                            textAlign: lang === 'ur' ? 'right' : 'left'
+                          }}
+                        >
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem', marginBottom: '0.4rem', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
+                            <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'flex', gap: '0.4rem', alignItems: 'center', flexWrap: 'wrap', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
+                              <span>{new Date(n.createdAt).toLocaleString(lang === 'ur' ? 'ur-PK' : 'en-US', { dateStyle: 'medium', timeStyle: 'short' })}</span>
+                              {n.author && <span>• {n.author}</span>}
+                            </div>
+                            <button
+                              className="btn btn-secondary btn-sm text-danger"
+                              style={{ padding: '0.15rem 0.35rem', border: 'none' }}
+                              onClick={() => handleDeleteNote(n.id)}
+                            >
+                              <Trash2 size={11} />
+                            </button>
+                          </div>
+                          <div style={{ fontSize: '0.875rem', whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: 1.45 }}>
+                            {n.body}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+
             </div>
-            
-            <div className="modal-footer" style={{ justifyContent: lang === 'ur' ? 'flex-start' : 'flex-end' }}>
+
+            <div className="modal-footer" style={{ justifyContent: 'space-between', flexDirection: lang === 'ur' ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: '0.5rem' }}>
+              <button
+                className="btn btn-secondary"
+                onClick={handlePrintCase}
+                style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}
+              >
+                <Printer size={15} /> {t.printCaseBtn}
+              </button>
               <button className="btn btn-secondary" onClick={() => setSelectedCaseId(null)}>{t.closeCaseFile}</button>
             </div>
           </div>
@@ -1044,6 +1247,136 @@ export default function Cases({ lang, dbData, refreshDb, selectedCaseId, setSele
               </div>
             </form>
           </div>
+        </div>
+      )}
+
+      {/* Print-only report (hidden on screen, full report when printing) */}
+      {selectedCase && (
+        <div className="case-print-report" aria-hidden="true" dir={lang === 'ur' ? 'rtl' : 'ltr'}>
+          <div className="print-header">
+            <h1>{t.caseReportTitle}</h1>
+            <div className="print-meta">
+              <span>{t.generatedOn}: {new Date().toLocaleString(lang === 'ur' ? 'ur-PK' : 'en-US', { dateStyle: 'medium', timeStyle: 'short' })}</span>
+            </div>
+          </div>
+
+          <section className="print-section">
+            <h2>{selectedCase.title}</h2>
+            <div className="print-kv-grid">
+              <div><strong>{lang === 'ur' ? 'فائل / مقدمہ نمبر' : 'Case / File Number'}:</strong> {selectedCase.caseNumber}</div>
+              <div><strong>{t.clientCol}:</strong> {caseOrg ? caseOrg.name : '—'}</div>
+              <div><strong>{t.branchCol}:</strong> {caseBranch ? caseBranch.name : '—'}</div>
+              <div><strong>{t.courtLabel}:</strong> {selectedCase.court || '—'}</div>
+              <div><strong>{t.judgeLabel}:</strong> {selectedCase.judge || '—'}</div>
+              <div><strong>{t.litPhaseLabel}:</strong> {selectedCase.stage}</div>
+              <div><strong>{t.statusLabel}:</strong> {selectedCase.status}</div>
+              <div><strong>{t.priorityLabel}:</strong> {getPriorityLabel(selectedCase.priority)}</div>
+            </div>
+            {selectedCase.description && (
+              <p style={{ marginTop: '0.6rem' }}><strong>{t.briefDesc}:</strong> {selectedCase.description}</p>
+            )}
+          </section>
+
+          <section className="print-section">
+            <h3>{t.hearingsTab} ({caseHearings.length})</h3>
+            {caseHearings.length === 0 ? <p className="print-empty">—</p> : (
+              <table className="print-table">
+                <thead>
+                  <tr>
+                    <th>{lang === 'ur' ? 'تاریخ' : 'Date'}</th>
+                    <th>{t.time}</th>
+                    <th>{t.purpose}</th>
+                    <th>{t.courtroom}</th>
+                    <th>{t.outcomeLabel}</th>
+                    <th>{t.hearingNotes}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {caseHearings.map(h => (
+                    <tr key={h.id}>
+                      <td>{h.hearingDate}</td>
+                      <td>{h.time || '—'}</td>
+                      <td>{h.purpose}</td>
+                      <td>{h.courtroom || '—'}</td>
+                      <td>{getOutcomeLabel(h.outcome || 'Scheduled', t)}</td>
+                      <td>{h.notes || '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </section>
+
+          <section className="print-section">
+            <h3>{t.tasksTab} ({caseTasks.length})</h3>
+            {caseTasks.length === 0 ? <p className="print-empty">—</p> : (
+              <table className="print-table">
+                <thead>
+                  <tr>
+                    <th>{lang === 'ur' ? 'کام' : 'Task'}</th>
+                    <th>{t.dueDateCol}</th>
+                    <th>{t.priorityLabel}</th>
+                    <th>{t.statusLabel}</th>
+                    <th>{t.assignedToLabel}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {caseTasks.map(tk => (
+                    <tr key={tk.id}>
+                      <td>{tk.title}</td>
+                      <td>{tk.dueDate}</td>
+                      <td>{getPriorityLabel(tk.priority)}</td>
+                      <td>{tk.status}</td>
+                      <td>{tk.assignedTo || '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </section>
+
+          <section className="print-section">
+            <h3>{t.documentsTab} ({caseDocs.length})</h3>
+            {caseDocs.length === 0 ? <p className="print-empty">—</p> : (
+              <table className="print-table">
+                <thead>
+                  <tr>
+                    <th>{t.fileNameCol}</th>
+                    <th>{t.classificationCol}</th>
+                    <th>{t.fileSizeCol}</th>
+                    <th>{t.uploadDateCol}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {caseDocs.map(d => (
+                    <tr key={d.id}>
+                      <td>{d.name}</td>
+                      <td>{getLocalizedCategory(d.category)}</td>
+                      <td>{d.size}</td>
+                      <td>{d.uploadDate}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </section>
+
+          <section className="print-section">
+            <h3>{t.notesTab} ({caseNotes.length})</h3>
+            {caseNotes.length === 0 ? <p className="print-empty">{t.noNotes}</p> : (
+              <div className="print-notes-list">
+                {caseNotes.map(n => (
+                  <div key={n.id} className="print-note">
+                    <div className="print-note-meta">
+                      <span>{new Date(n.createdAt).toLocaleString(lang === 'ur' ? 'ur-PK' : 'en-US', { dateStyle: 'medium', timeStyle: 'short' })}</span>
+                      {n.author && <span> · {n.author}</span>}
+                    </div>
+                    <div className="print-note-body">{n.body}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
         </div>
       )}
     </div>

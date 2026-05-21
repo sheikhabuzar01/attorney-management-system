@@ -1454,3 +1454,158 @@ textarea.form-control {
     font-size: 1rem;
   }
 }
+
+/* ------------------ Print / PDF Export ------------------ */
+.case-print-report {
+  display: none;
+}
+
+@media print {
+  /* Force light theme regardless of current --bg-* values */
+  body, html {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  /* Hide app chrome and interactive elements */
+  .sidebar,
+  .top-header,
+  .sidebar-overlay,
+  .mobile-toggle,
+  .mobile-close-btn,
+  .modal-overlay,
+  .page-body > div > div:first-child,
+  .dashboard-panel {
+    display: none !important;
+  }
+
+  /* Show only the print report */
+  .app-container,
+  .main-content,
+  .page-body {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
+    background: #ffffff !important;
+  }
+
+  .case-print-report {
+    display: block !important;
+    position: static !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    font-family: var(--font-sans);
+    font-size: 11pt;
+    line-height: 1.4;
+  }
+
+  .case-print-report .print-header {
+    border-bottom: 2px solid #000;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .case-print-report .print-header h1 {
+    font-family: var(--font-display);
+    font-size: 20pt;
+    font-weight: 700;
+    margin: 0 0 0.25rem;
+  }
+
+  .case-print-report .print-meta {
+    font-size: 9pt;
+    color: #444;
+  }
+
+  .case-print-report .print-section {
+    margin-bottom: 1.25rem;
+    page-break-inside: avoid;
+  }
+
+  .case-print-report .print-section h2 {
+    font-family: var(--font-display);
+    font-size: 14pt;
+    margin: 0 0 0.5rem;
+  }
+
+  .case-print-report .print-section h3 {
+    font-family: var(--font-display);
+    font-size: 12pt;
+    margin: 0.75rem 0 0.4rem;
+    border-bottom: 1px solid #999;
+    padding-bottom: 0.2rem;
+  }
+
+  .case-print-report .print-kv-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.35rem 1rem;
+    font-size: 10.5pt;
+  }
+
+  .case-print-report .print-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9.5pt;
+    margin-top: 0.4rem;
+  }
+
+  .case-print-report .print-table th,
+  .case-print-report .print-table td {
+    border: 1px solid #555;
+    padding: 4pt 6pt;
+    text-align: start;
+    vertical-align: top;
+  }
+
+  .case-print-report .print-table th {
+    background: #eee !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    font-weight: 600;
+  }
+
+  .case-print-report .print-empty {
+    font-style: italic;
+    color: #666;
+    margin: 0.2rem 0;
+  }
+
+  .case-print-report .print-notes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .case-print-report .print-note {
+    border: 1px solid #999;
+    padding: 0.4rem 0.6rem;
+    page-break-inside: avoid;
+  }
+
+  .case-print-report .print-note-meta {
+    font-size: 8.5pt;
+    color: #555;
+    margin-bottom: 0.2rem;
+  }
+
+  .case-print-report .print-note-body {
+    white-space: pre-wrap;
+    font-size: 10pt;
+  }
+
+  /* Remove all box shadows / animations */
+  * {
+    box-shadow: none !important;
+    animation: none !important;
+    transition: none !important;
+  }
+
+  @page {
+    margin: 0.5in;
+  }
+}

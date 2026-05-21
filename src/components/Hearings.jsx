@@ -1,17 +1,52 @@
 import React, { useState } from 'react';
-import { 
-  Calendar, 
-  Clock, 
-  MapPin, 
-  Plus, 
-  Trash2, 
+import {
+  Calendar,
+  Clock,
+  MapPin,
+  Plus,
+  Trash2,
   X,
   ExternalLink,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Edit3,
+  Check
 } from 'lucide-react';
 import { db } from '../db/mockDb';
 import { translations } from '../db/translations';
+
+const OUTCOME_KEYS = [
+  'Scheduled',
+  'Adjourned',
+  'Disposed',
+  'Order Reserved',
+  'Order Granted',
+  'Order Denied',
+  'No Show'
+];
+
+const OUTCOME_BADGE_CLASS = {
+  'Scheduled': 'badge-active',
+  'Adjourned': 'badge-pending',
+  'Disposed': 'badge-closed',
+  'Order Reserved': 'badge-medium',
+  'Order Granted': 'badge-low',
+  'Order Denied': 'badge-high',
+  'No Show': 'badge-high'
+};
+
+export function getOutcomeLabel(outcome, t) {
+  switch (outcome) {
+    case 'Scheduled': return t.outcomeScheduled;
+    case 'Adjourned': return t.outcomeAdjourned;
+    case 'Disposed': return t.outcomeDisposed;
+    case 'Order Reserved': return t.outcomeOrderReserved;
+    case 'Order Granted': return t.outcomeOrderGranted;
+    case 'Order Denied': return t.outcomeOrderDenied;
+    case 'No Show': return t.outcomeNoShow;
+    default: return outcome || t.outcomeScheduled;
+  }
+}
 
 export default function Hearings({ lang, dbData, refreshDb, setSelectedCaseId, setActiveTab }) {
   const { hearings, cases } = dbData;
@@ -19,6 +54,8 @@ export default function Hearings({ lang, dbData, refreshDb, setSelectedCaseId, s
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [newHearing, setNewHearing] = useState({ caseId: '', hearingDate: '', time: '', purpose: '', courtroom: '', status: 'Scheduled' });
+  const [outcomeEditId, setOutcomeEditId] = useState(null);
+  const [outcomeDraft, setOutcomeDraft] = useState({ outcome: 'Scheduled', notes: '' });
 
   // Focus on May 2026 for demonstration (as per client time context 2026-05-21)
   const [currentYear, setCurrentYear] = useState(2026);
@@ -117,6 +154,23 @@ export default function Hearings({ lang, dbData, refreshDb, setSelectedCaseId, s
     setActiveTab('cases');
   };
 
+  const openOutcomeEditor = (h) => {
+    setOutcomeEditId(h.id);
+    setOutcomeDraft({ outcome: h.outcome || 'Scheduled', notes: h.notes || '' });
+  };
+
+  const cancelOutcomeEditor = () => {
+    setOutcomeEditId(null);
+    setOutcomeDraft({ outcome: 'Scheduled', notes: '' });
+  };
+
+  const saveOutcome = (e, hearingId) => {
+    e.preventDefault();
+    db.updateHearing(hearingId, { outcome: outcomeDraft.outcome, notes: outcomeDraft.notes });
+    cancelOutcomeEditor();
+    refreshDb();
+  };
+
   // Helper to get hearings for a specific calendar cell
   const getHearingsForDate = (day, month, year) => {
     const monthStr = String(month + 1).padStart(2, '0');
@@ -213,39 +267,42 @@ export default function Hearings({ lang, dbData, refreshDb, setSelectedCaseId, s
           ) : (
             sortedHearings.map((h) => {
               const cs = cases.find(c => c.id === h.caseId);
+              const isEditingOutcome = outcomeEditId === h.id;
+              const outcome = h.outcome || 'Scheduled';
+              const badgeCls = OUTCOME_BADGE_CLASS[outcome] || 'badge-active';
               return (
-                <div 
-                  key={h.id} 
-                  style={{ 
-                    border: '1px solid var(--border-color)', 
-                    borderRadius: 'var(--radius-md)', 
-                    padding: '0.75rem', 
-                    marginBottom: '0.75rem', 
+                <div
+                  key={h.id}
+                  style={{
+                    border: '1px solid var(--border-color)',
+                    borderRadius: 'var(--radius-md)',
+                    padding: '0.75rem',
+                    marginBottom: '0.75rem',
                     backgroundColor: 'var(--bg-secondary)',
                     transition: 'border-color 0.15s',
                     textAlign: lang === 'ur' ? 'right' : 'left'
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
-                    <span 
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexDirection: lang === 'ur' ? 'row-reverse' : 'row', gap: '0.5rem' }}>
+                    <span
                       style={{ fontWeight: '600', fontSize: '0.85rem', color: 'var(--primary)', cursor: 'pointer' }}
                       onClick={() => handleHearingClick(h.caseId)}
                     >
                       {h.purpose}
                     </span>
-                    <button 
-                      className="btn btn-secondary btn-sm text-danger" 
+                    <button
+                      className="btn btn-secondary btn-sm text-danger"
                       style={{ padding: '0.15rem 0.35rem', border: 'none' }}
                       onClick={() => handleDeleteHearing(h.id)}
                     >
                       <Trash2 size={12} />
                     </button>
                   </div>
-                  
+
                   <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.25rem', fontWeight: '500' }}>
                     {cs ? cs.title : 'Unknown Case'}
                   </div>
- 
+
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', marginTop: '0.5rem', borderTop: '1px solid var(--border-color)', paddingTop: '0.5rem', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
                       <Calendar size={12} /> {h.hearingDate} at {h.time}
@@ -254,6 +311,59 @@ export default function Hearings({ lang, dbData, refreshDb, setSelectedCaseId, s
                       <MapPin size={12} /> {h.courtroom || 'N/A'}
                     </span>
                   </div>
+
+                  {/* Outcome row */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', marginTop: '0.5rem', flexDirection: lang === 'ur' ? 'row-reverse' : 'row', flexWrap: 'wrap' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
+                      <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t.outcomeLabel}:</span>
+                      <span className={`badge ${badgeCls}`} style={{ fontSize: '0.65rem' }}>{getOutcomeLabel(outcome, t)}</span>
+                    </span>
+                    {!isEditingOutcome && (
+                      <button
+                        className="btn btn-secondary btn-sm"
+                        style={{ padding: '0.2rem 0.5rem', fontSize: '0.7rem', display: 'flex', alignItems: 'center', gap: '0.25rem', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}
+                        onClick={() => openOutcomeEditor(h)}
+                      >
+                        <Edit3 size={11} />
+                        {t.updateOutcome}
+                      </button>
+                    )}
+                  </div>
+
+                  {h.notes && !isEditingOutcome && (
+                    <div style={{ marginTop: '0.4rem', fontSize: '0.75rem', color: 'var(--text-secondary)', backgroundColor: 'var(--bg-primary)', padding: '0.4rem 0.6rem', borderRadius: 'var(--radius-sm)', borderInlineStart: '2px solid var(--primary)' }}>
+                      {h.notes}
+                    </div>
+                  )}
+
+                  {isEditingOutcome && (
+                    <form onSubmit={(e) => saveOutcome(e, h.id)} style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', marginTop: '0.5rem', padding: '0.5rem', backgroundColor: 'var(--bg-primary)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}>
+                      <select
+                        className="form-control"
+                        style={{ padding: '0.35rem 0.5rem', fontSize: '0.8rem' }}
+                        value={outcomeDraft.outcome}
+                        onChange={e => setOutcomeDraft({ ...outcomeDraft, outcome: e.target.value })}
+                      >
+                        {OUTCOME_KEYS.map(k => <option key={k} value={k}>{getOutcomeLabel(k, t)}</option>)}
+                      </select>
+                      <textarea
+                        className="form-control"
+                        rows={2}
+                        placeholder={t.outcomeNotesPlaceholder}
+                        style={{ padding: '0.35rem 0.5rem', fontSize: '0.8rem', minHeight: '50px' }}
+                        value={outcomeDraft.notes}
+                        onChange={e => setOutcomeDraft({ ...outcomeDraft, notes: e.target.value })}
+                      />
+                      <div style={{ display: 'flex', gap: '0.4rem', justifyContent: 'flex-end', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
+                        <button type="button" className="btn btn-secondary btn-sm" onClick={cancelOutcomeEditor} style={{ padding: '0.2rem 0.5rem', fontSize: '0.7rem' }}>
+                          {t.cancel}
+                        </button>
+                        <button type="submit" className="btn btn-primary btn-sm" style={{ padding: '0.2rem 0.5rem', fontSize: '0.7rem', display: 'flex', alignItems: 'center', gap: '0.25rem', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
+                          <Check size={11} /> {t.saveOutcome}
+                        </button>
+                      </div>
+                    </form>
+                  )}
                 </div>
               );
             })
