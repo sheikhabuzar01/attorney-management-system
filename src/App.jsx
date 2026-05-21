@@ -184,15 +184,15 @@ export default function App() {
       
       <main className="main-content">
         <header className="top-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
-            <button 
-              className="mobile-toggle" 
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexDirection: lang === 'ur' ? 'row-reverse' : 'row', minWidth: 0, flex: 1 }}>
+            <button
+              className="mobile-toggle"
               onClick={() => setIsSidebarOpen(true)}
               title="Open Navigation"
             >
               <Menu size={20} />
             </button>
-            <div style={{ textAlign: lang === 'ur' ? 'right' : 'left' }}>
+            <div style={{ textAlign: lang === 'ur' ? 'right' : 'left', minWidth: 0, flex: 1 }}>
               <h1 className="page-title">{getTabTitle()}</h1>
               <p className="header-subtitle">
                 {t.counselWorkspace}: <strong>{user.name}</strong> ({user.role}) • {t.docketSyncStatus}: <span style={{ color: 'var(--success)' }}>{t.online}</span>

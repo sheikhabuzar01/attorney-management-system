@@ -666,31 +666,31 @@ export default function Cases({ lang, dbData, refreshDb, selectedCaseId, setSele
                         onChange={e => setQuickHearing({...quickHearing, purpose: e.target.value})}
                       />
                     </div>
-                    <div style={{ width: '120px' }}>
-                      <input 
-                        type="date" 
-                        className="form-control" 
+                    <div style={{ flex: '1 1 130px', minWidth: 0 }}>
+                      <input
+                        type="date"
+                        className="form-control"
                         style={{ padding: '0.4rem 0.6rem', fontSize: '0.8rem' }}
                         required
                         value={quickHearing.hearingDate}
                         onChange={e => setQuickHearing({...quickHearing, hearingDate: e.target.value})}
                       />
                     </div>
-                    <div style={{ width: '100px' }}>
-                      <input 
-                        type="text" 
-                        placeholder="10:00 AM" 
-                        className="form-control" 
+                    <div style={{ flex: '1 1 110px', minWidth: 0 }}>
+                      <input
+                        type="text"
+                        placeholder="10:00 AM"
+                        className="form-control"
                         style={{ padding: '0.4rem 0.6rem', fontSize: '0.8rem' }}
                         value={quickHearing.time}
                         onChange={e => setQuickHearing({...quickHearing, time: e.target.value})}
                       />
                     </div>
-                    <div style={{ width: '110px' }}>
-                      <input 
-                        type="text" 
-                        placeholder={lang === 'ur' ? 'کمرہ نمبر' : 'Rm 301'} 
-                        className="form-control" 
+                    <div style={{ flex: '1 1 120px', minWidth: 0 }}>
+                      <input
+                        type="text"
+                        placeholder={lang === 'ur' ? 'کمرہ نمبر' : 'Rm 301'}
+                        className="form-control"
                         style={{ padding: '0.4rem 0.6rem', fontSize: '0.8rem' }}
                         value={quickHearing.courtroom}
                         onChange={e => setQuickHearing({...quickHearing, courtroom: e.target.value})}
@@ -750,9 +750,9 @@ export default function Cases({ lang, dbData, refreshDb, selectedCaseId, setSele
                         onChange={e => setQuickDoc({...quickDoc, name: e.target.value})}
                       />
                     </div>
-                    <div style={{ width: '120px' }}>
-                      <select 
-                        className="form-control" 
+                    <div style={{ flex: '1 1 140px', minWidth: 0 }}>
+                      <select
+                        className="form-control"
                         style={{ padding: '0.4rem 0.6rem', fontSize: '0.8rem' }}
                         value={quickDoc.category}
                         onChange={e => setQuickDoc({...quickDoc, category: e.target.value})}
@@ -765,11 +765,11 @@ export default function Cases({ lang, dbData, refreshDb, selectedCaseId, setSele
                         <option value="Other">{t.other}</option>
                       </select>
                     </div>
-                    <div style={{ width: '90px' }}>
-                      <input 
-                        type="text" 
-                        placeholder="Size" 
-                        className="form-control" 
+                    <div style={{ flex: '0 1 100px', minWidth: 0 }}>
+                      <input
+                        type="text"
+                        placeholder="Size"
+                        className="form-control"
                         style={{ padding: '0.4rem 0.6rem', fontSize: '0.8rem' }}
                         value={quickDoc.size}
                         onChange={e => setQuickDoc({...quickDoc, size: e.target.value})}
@@ -841,21 +841,21 @@ export default function Cases({ lang, dbData, refreshDb, selectedCaseId, setSele
                         onChange={e => setQuickTask({...quickTask, title: e.target.value})}
                       />
                     </div>
-                    <div style={{ width: '120px' }}>
-                      <input 
-                        type="date" 
-                        className="form-control" 
+                    <div style={{ flex: '1 1 130px', minWidth: 0 }}>
+                      <input
+                        type="date"
+                        className="form-control"
                         style={{ padding: '0.4rem 0.6rem', fontSize: '0.8rem' }}
                         required
                         value={quickTask.dueDate}
                         onChange={e => setQuickTask({...quickTask, dueDate: e.target.value})}
                       />
                     </div>
-                    <div style={{ width: '110px' }}>
-                      <input 
-                        type="text" 
-                        placeholder={lang === 'ur' ? 'تفویض کردہ' : 'Assign To'} 
-                        className="form-control" 
+                    <div style={{ flex: '1 1 130px', minWidth: 0 }}>
+                      <input
+                        type="text"
+                        placeholder={lang === 'ur' ? 'تفویض کردہ' : 'Assign To'}
+                        className="form-control"
                         style={{ padding: '0.4rem 0.6rem', fontSize: '0.8rem' }}
                         value={quickTask.assignedTo}
                         onChange={e => setQuickTask({...quickTask, assignedTo: e.target.value})}
