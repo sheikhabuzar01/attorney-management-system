@@ -10,6 +10,7 @@ import Documents from './components/Documents';
 import Tasks from './components/Tasks';
 import Contacts from './components/Contacts';
 import GlobalSearch from './components/GlobalSearch';
+import NotificationCenter from './components/NotificationCenter';
 import Login from './components/Login';
 import { Sun, Moon, LogOut, Languages, Menu } from 'lucide-react';
 
@@ -218,6 +219,14 @@ export default function App() {
           />
 
           <div className="header-actions" style={{ gap: '0.5rem', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
+            {/* Notifications */}
+            <NotificationCenter
+              lang={lang}
+              dbData={dbData}
+              setActiveTab={setActiveTab}
+              setSelectedCaseId={setSelectedCaseId}
+            />
+
             {/* Language Switcher */}
             <button 
               className="theme-btn" 
