@@ -605,113 +605,115 @@ export default function TimeBilling({ lang, dbData, refreshDb, setActiveTab, set
         const inv = invoices.find(i => i.id === showInvoiceDetail.id) || showInvoiceDetail;
         const o = orgLookup(inv.orgId);
         return (
-          <div className="modal-overlay">
-            <div className="modal-container" style={{ maxWidth: '760px', textAlign: isRTL ? 'right' : 'left' }}>
-              <div className="modal-header" style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
-                <div>
-                  <span className={`badge ${getInvoiceStatusBadge(inv.status)}`} style={{ marginBottom: '0.25rem' }}>{getInvoiceStatusLabel(inv.status, t)}</span>
-                  <h3 className="modal-title">{inv.invoiceNumber}</h3>
-                </div>
-                <button className="modal-close" onClick={() => setShowInvoiceDetail(null)}>
-                  <X size={18} />
-                </button>
-              </div>
-
-              <div className="modal-body">
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem 1.2rem', fontSize: '0.85rem' }}>
+          <>
+            <div className="modal-overlay">
+              <div className="modal-container" style={{ maxWidth: '760px', textAlign: isRTL ? 'right' : 'left' }}>
+                <div className="modal-header" style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
                   <div>
-                    <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: 'var(--text-muted)', letterSpacing: '0.05em' }}>{t.invoiceClientLabel}</div>
-                    <div style={{ fontWeight: 600 }}>{o ? o.name : '—'}</div>
-                    {o && <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>{o.email || ''}</div>}
+                    <span className={`badge ${getInvoiceStatusBadge(inv.status)}`} style={{ marginBottom: '0.25rem' }}>{getInvoiceStatusLabel(inv.status, t)}</span>
+                    <h3 className="modal-title">{inv.invoiceNumber}</h3>
                   </div>
-                  <div>
-                    <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: 'var(--text-muted)', letterSpacing: '0.05em' }}>{t.billFromLabel}</div>
-                    <div style={{ fontWeight: 600 }}>{t.firmName}</div>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: 'var(--text-muted)', letterSpacing: '0.05em' }}>{t.invoiceIssueDate}</div>
-                    <div>{inv.issueDate}</div>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: 'var(--text-muted)', letterSpacing: '0.05em' }}>{t.invoiceDueDate}</div>
-                    <div>{inv.dueDate || '—'}</div>
-                  </div>
-                </div>
-
-                <h4 style={{ marginTop: '1.25rem', marginBottom: '0.5rem', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)' }}>{t.invoiceLineItems}</h4>
-                <div className="custom-table-wrapper">
-                  <table className="custom-table">
-                    <thead>
-                      <tr>
-                        <th>{t.timeEntryDate}</th>
-                        <th>{t.timeEntryDescription}</th>
-                        <th style={{ textAlign: isRTL ? 'left' : 'right' }}>{t.timeEntryHours}</th>
-                        <th style={{ textAlign: isRTL ? 'left' : 'right' }}>{t.timeEntryRate}</th>
-                        <th style={{ textAlign: isRTL ? 'left' : 'right' }}>{t.timeEntryAmount}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {inv.lineItems.map((li, idx) => (
-                        <tr key={li.timeEntryId || idx}>
-                          <td>{li.date}</td>
-                          <td>{li.description || '—'}</td>
-                          <td style={{ textAlign: isRTL ? 'left' : 'right' }}>{Number(li.hours).toFixed(2)}</td>
-                          <td style={{ textAlign: isRTL ? 'left' : 'right' }}>{fmt(li.rate, lang)}</td>
-                          <td style={{ textAlign: isRTL ? 'left' : 'right', fontWeight: 600 }}>{fmt(li.amount, lang)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                    <tfoot>
-                      <tr>
-                        <td colSpan={4} style={{ textAlign: isRTL ? 'left' : 'right', fontWeight: 600 }}>{t.invoiceSubtotal}</td>
-                        <td style={{ textAlign: isRTL ? 'left' : 'right', fontWeight: 600 }}>{fmt(inv.subtotal, lang)}</td>
-                      </tr>
-                      {inv.taxPercent > 0 && (
-                        <tr>
-                          <td colSpan={4} style={{ textAlign: isRTL ? 'left' : 'right' }}>{t.invoiceTax} ({inv.taxPercent}%)</td>
-                          <td style={{ textAlign: isRTL ? 'left' : 'right' }}>{fmt(inv.tax, lang)}</td>
-                        </tr>
-                      )}
-                      <tr>
-                        <td colSpan={4} style={{ textAlign: isRTL ? 'left' : 'right', fontWeight: 700, fontSize: '1rem' }}>{t.invoiceTotal}</td>
-                        <td style={{ textAlign: isRTL ? 'left' : 'right', fontWeight: 700, fontSize: '1rem', color: 'var(--primary)' }}>{fmt(inv.total, lang)} {inv.currency}</td>
-                      </tr>
-                    </tfoot>
-                  </table>
-                </div>
-
-                {inv.notes && (
-                  <div style={{ marginTop: '1rem' }}>
-                    <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: 'var(--text-muted)', letterSpacing: '0.05em', marginBottom: '0.3rem' }}>{t.invoiceNotes}</div>
-                    <div style={{ fontSize: '0.85rem', whiteSpace: 'pre-wrap', padding: '0.65rem 0.8rem', backgroundColor: 'var(--bg-primary)', borderRadius: 'var(--radius-md)' }}>{inv.notes}</div>
-                  </div>
-                )}
-              </div>
-
-              <div className="modal-footer" style={{ justifyContent: 'space-between', flexDirection: isRTL ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: '0.5rem' }}>
-                <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', flexDirection: isRTL ? 'row-reverse' : 'row' }}>
-                  {inv.status === 'Draft' && (
-                    <button className="btn btn-primary btn-sm" onClick={() => updateInvoiceStatus(inv.id, 'Sent')} style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', flexDirection: isRTL ? 'row-reverse' : 'row' }}>
-                      <Send size={12} /> {t.markAsSent}
-                    </button>
-                  )}
-                  {inv.status === 'Sent' && (
-                    <button className="btn btn-primary btn-sm" onClick={() => updateInvoiceStatus(inv.id, 'Paid')} style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', flexDirection: isRTL ? 'row-reverse' : 'row' }}>
-                      <CheckCircle2 size={12} /> {t.markAsPaid}
-                    </button>
-                  )}
-                  {inv.status !== 'Draft' && (
-                    <button className="btn btn-secondary btn-sm" onClick={() => updateInvoiceStatus(inv.id, 'Draft')} style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', flexDirection: isRTL ? 'row-reverse' : 'row' }}>
-                      <Clock size={12} /> {t.markAsDraft}
-                    </button>
-                  )}
-                  <button className="btn btn-secondary btn-sm text-danger" onClick={() => handleDeleteInvoice(inv.id)} style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', flexDirection: isRTL ? 'row-reverse' : 'row' }}>
-                    <Trash2 size={12} /> {t.cancel === 'منسوخ کریں' ? 'حذف' : 'Delete'}
+                  <button className="modal-close" onClick={() => setShowInvoiceDetail(null)}>
+                    <X size={18} />
                   </button>
                 </div>
-                <button className="btn btn-primary" onClick={handlePrintInvoice} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexDirection: isRTL ? 'row-reverse' : 'row' }}>
-                  <Printer size={14} /> {t.printInvoiceBtn}
-                </button>
+
+                <div className="modal-body">
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem 1.2rem', fontSize: '0.85rem' }}>
+                    <div>
+                      <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: 'var(--text-muted)', letterSpacing: '0.05em' }}>{t.invoiceClientLabel}</div>
+                      <div style={{ fontWeight: 600 }}>{o ? o.name : '—'}</div>
+                      {o && <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>{o.email || ''}</div>}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: 'var(--text-muted)', letterSpacing: '0.05em' }}>{t.billFromLabel}</div>
+                      <div style={{ fontWeight: 600 }}>{t.firmName}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: 'var(--text-muted)', letterSpacing: '0.05em' }}>{t.invoiceIssueDate}</div>
+                      <div>{inv.issueDate}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: 'var(--text-muted)', letterSpacing: '0.05em' }}>{t.invoiceDueDate}</div>
+                      <div>{inv.dueDate || '—'}</div>
+                    </div>
+                  </div>
+
+                  <h4 style={{ marginTop: '1.25rem', marginBottom: '0.5rem', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)' }}>{t.invoiceLineItems}</h4>
+                  <div className="custom-table-wrapper">
+                    <table className="custom-table">
+                      <thead>
+                        <tr>
+                          <th>{t.timeEntryDate}</th>
+                          <th>{t.timeEntryDescription}</th>
+                          <th style={{ textAlign: isRTL ? 'left' : 'right' }}>{t.timeEntryHours}</th>
+                          <th style={{ textAlign: isRTL ? 'left' : 'right' }}>{t.timeEntryRate}</th>
+                          <th style={{ textAlign: isRTL ? 'left' : 'right' }}>{t.timeEntryAmount}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {inv.lineItems.map((li, idx) => (
+                          <tr key={li.timeEntryId || idx}>
+                            <td>{li.date}</td>
+                            <td>{li.description || '—'}</td>
+                            <td style={{ textAlign: isRTL ? 'left' : 'right' }}>{Number(li.hours).toFixed(2)}</td>
+                            <td style={{ textAlign: isRTL ? 'left' : 'right' }}>{fmt(li.rate, lang)}</td>
+                            <td style={{ textAlign: isRTL ? 'left' : 'right', fontWeight: 600 }}>{fmt(li.amount, lang)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                      <tfoot>
+                        <tr>
+                          <td colSpan={4} style={{ textAlign: isRTL ? 'left' : 'right', fontWeight: 600 }}>{t.invoiceSubtotal}</td>
+                          <td style={{ textAlign: isRTL ? 'left' : 'right', fontWeight: 600 }}>{fmt(inv.subtotal, lang)}</td>
+                        </tr>
+                        {inv.taxPercent > 0 && (
+                          <tr>
+                            <td colSpan={4} style={{ textAlign: isRTL ? 'left' : 'right' }}>{t.invoiceTax} ({inv.taxPercent}%)</td>
+                            <td style={{ textAlign: isRTL ? 'left' : 'right' }}>{fmt(inv.tax, lang)}</td>
+                          </tr>
+                        )}
+                        <tr>
+                          <td colSpan={4} style={{ textAlign: isRTL ? 'left' : 'right', fontWeight: 700, fontSize: '1rem' }}>{t.invoiceTotal}</td>
+                          <td style={{ textAlign: isRTL ? 'left' : 'right', fontWeight: 700, fontSize: '1rem', color: 'var(--primary)' }}>{fmt(inv.total, lang)} {inv.currency}</td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+
+                  {inv.notes && (
+                    <div style={{ marginTop: '1rem' }}>
+                      <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: 'var(--text-muted)', letterSpacing: '0.05em', marginBottom: '0.3rem' }}>{t.invoiceNotes}</div>
+                      <div style={{ fontSize: '0.85rem', whiteSpace: 'pre-wrap', padding: '0.65rem 0.8rem', backgroundColor: 'var(--bg-primary)', borderRadius: 'var(--radius-md)' }}>{inv.notes}</div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="modal-footer" style={{ justifyContent: 'space-between', flexDirection: isRTL ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', flexDirection: isRTL ? 'row-reverse' : 'row' }}>
+                    {inv.status === 'Draft' && (
+                      <button className="btn btn-primary btn-sm" onClick={() => updateInvoiceStatus(inv.id, 'Sent')} style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', flexDirection: isRTL ? 'row-reverse' : 'row' }}>
+                        <Send size={12} /> {t.markAsSent}
+                      </button>
+                    )}
+                    {inv.status === 'Sent' && (
+                      <button className="btn btn-primary btn-sm" onClick={() => updateInvoiceStatus(inv.id, 'Paid')} style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', flexDirection: isRTL ? 'row-reverse' : 'row' }}>
+                        <CheckCircle2 size={12} /> {t.markAsPaid}
+                      </button>
+                    )}
+                    {inv.status !== 'Draft' && (
+                      <button className="btn btn-secondary btn-sm" onClick={() => updateInvoiceStatus(inv.id, 'Draft')} style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', flexDirection: isRTL ? 'row-reverse' : 'row' }}>
+                        <Clock size={12} /> {t.markAsDraft}
+                      </button>
+                    )}
+                    <button className="btn btn-secondary btn-sm text-danger" onClick={() => handleDeleteInvoice(inv.id)} style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', flexDirection: isRTL ? 'row-reverse' : 'row' }}>
+                      <Trash2 size={12} /> {t.cancel === 'منسوخ کریں' ? 'حذف' : 'Delete'}
+                    </button>
+                  </div>
+                  <button className="btn btn-primary" onClick={handlePrintInvoice} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexDirection: isRTL ? 'row-reverse' : 'row' }}>
+                    <Printer size={14} /> {t.printInvoiceBtn}
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -778,7 +780,7 @@ export default function TimeBilling({ lang, dbData, refreshDb, setActiveTab, set
                 </div>
               )}
             </div>
-          </div>
+          </>
         );
       })()}
     </div>
