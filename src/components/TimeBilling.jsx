@@ -232,28 +232,27 @@ export default function TimeBilling({ lang, dbData, refreshDb, setActiveTab, set
           flexWrap: 'wrap',
           gap: '1rem',
           alignItems: 'center',
-          justifyContent: 'space-between',
-          flexDirection: isRTL ? 'row-reverse' : 'row'
+          justifyContent: 'space-between'
         }}
       >
-        <div style={{ display: 'flex', gap: '0.4rem', flexDirection: isRTL ? 'row-reverse' : 'row' }}>
+        <div style={{ display: 'flex', gap: '0.4rem' }}>
           <button
             className={`btn btn-${activeSubTab === 'time' ? 'primary' : 'secondary'} btn-sm`}
             onClick={() => setActiveSubTab('time')}
-            style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexDirection: isRTL ? 'row-reverse' : 'row' }}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}
           >
             <Timer size={14} /> {t.timeLogTab}
           </button>
           <button
             className={`btn btn-${activeSubTab === 'invoices' ? 'primary' : 'secondary'} btn-sm`}
             onClick={() => setActiveSubTab('invoices')}
-            style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexDirection: isRTL ? 'row-reverse' : 'row' }}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}
           >
             <InvoiceIcon size={14} /> {t.invoicesTab} ({invoices.length})
           </button>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexDirection: isRTL ? 'row-reverse' : 'row' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
           <label style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>{t.defaultRateLabel}:</label>
           <input
             type="number"
@@ -283,8 +282,7 @@ export default function TimeBilling({ lang, dbData, refreshDb, setActiveTab, set
               display: 'flex',
               flexWrap: 'wrap',
               gap: '0.65rem',
-              alignItems: 'center',
-              flexDirection: isRTL ? 'row-reverse' : 'row'
+              alignItems: 'center'
             }}
           >
             <Filter size={14} style={{ color: 'var(--text-secondary)' }} />

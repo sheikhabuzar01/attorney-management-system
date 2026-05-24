@@ -21,6 +21,7 @@ export default function Documents({ lang, dbData, refreshDb }) {
   const [selectedOrgId, setSelectedOrgId] = useState(organizations[0]?.id || null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [mobileView, setMobileView] = useState('list'); // 'list' | 'detail'
 
   // Form State for Simulated Upload
   const [uploadForm, setUploadForm] = useState({
@@ -135,7 +136,7 @@ export default function Documents({ lang, dbData, refreshDb }) {
     <div className="split-pane">
       
       {/* Left Pane: Organization Directory folders */}
-      <div className="pane-list">
+      <div className={`pane-list ${mobileView === 'detail' ? 'hide-on-mobile' : ''}`}>
         <div style={{ padding: '1rem', borderBottom: '1px solid var(--border-color)', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <Folder size={16} style={{ color: 'var(--primary)' }} />
           {t.clientFolders}
@@ -146,7 +147,10 @@ export default function Documents({ lang, dbData, refreshDb }) {
             <div 
               key={org.id} 
               className={`list-item-card ${selectedOrgId === org.id ? 'active' : ''}`}
-              onClick={() => setSelectedOrgId(org.id)}
+              onClick={() => {
+                setSelectedOrgId(org.id);
+                setMobileView('detail');
+              }}
               style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}
             >
               <Folder size={16} style={{ color: selectedOrgId === org.id ? 'var(--primary)' : 'var(--text-secondary)', flexShrink: 0 }} />
@@ -162,9 +166,18 @@ export default function Documents({ lang, dbData, refreshDb }) {
       </div>
 
       {/* Right Pane: Document Explorer */}
-      <div className="pane-detail">
+      <div className={`pane-detail ${mobileView === 'list' ? 'hide-on-mobile' : ''}`}>
         {selectedOrg ? (
           <>
+            {/* Mobile Back Button */}
+            <button 
+              className="btn btn-secondary btn-sm show-on-mobile mobile-back-btn" 
+              onClick={() => setMobileView('list')}
+              style={{ display: 'none', alignItems: 'center', gap: '0.25rem', marginBottom: '1rem', width: 'fit-content' }}
+            >
+              &larr; {lang === 'ur' ? 'پیچھے' : 'Back'}
+            </button>
+
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem' }}>
               <div>
                 <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--text-muted)', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>

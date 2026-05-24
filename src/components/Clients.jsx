@@ -21,6 +21,7 @@ export default function Clients({ lang, dbData, refreshDb }) {
 
   const [selectedOrgId, setSelectedOrgId] = useState(organizations[0]?.id || null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [mobileView, setMobileView] = useState('list'); // 'list' | 'detail'
   
   // Modals state
   const [showOrgModal, setShowOrgModal] = useState(false);
@@ -87,7 +88,7 @@ export default function Clients({ lang, dbData, refreshDb }) {
   return (
     <div className="split-pane">
       {/* Left Pane: Organization Search and List */}
-      <div className="pane-list">
+      <div className={`pane-list ${mobileView === 'detail' ? 'hide-on-mobile' : ''}`}>
         <div className="pane-search-bar">
           <input 
             type="text" 
@@ -111,11 +112,14 @@ export default function Clients({ lang, dbData, refreshDb }) {
                 <div 
                   key={org.id} 
                   className={`list-item-card ${selectedOrgId === org.id ? 'active' : ''}`}
-                  onClick={() => setSelectedOrgId(org.id)}
+                  onClick={() => {
+                    setSelectedOrgId(org.id);
+                    setMobileView('detail');
+                  }}
                   style={{ textAlign: lang === 'ur' ? 'right' : 'left' }}
                 >
                   <div className="list-item-title">{org.name}</div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.25rem', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.25rem' }}>
                     <span className="list-item-subtitle">{org.industry}</span>
                     <span style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--primary)' }}>
                       {activeCases} {lang === 'ur' ? 'فعال مقدمات' : 'Active Cases'}
@@ -129,18 +133,27 @@ export default function Clients({ lang, dbData, refreshDb }) {
       </div>
 
       {/* Right Pane: Details, Branches, and Litigations */}
-      <div className="pane-detail" style={{ textAlign: lang === 'ur' ? 'right' : 'left' }}>
+      <div className={`pane-detail ${mobileView === 'list' ? 'hide-on-mobile' : ''}`} style={{ textAlign: lang === 'ur' ? 'right' : 'left' }}>
         {selectedOrg ? (
           <>
+            {/* Mobile Back Button */}
+            <button 
+              className="btn btn-secondary btn-sm show-on-mobile mobile-back-btn" 
+              onClick={() => setMobileView('list')}
+              style={{ display: 'none', alignItems: 'center', gap: '0.25rem', marginBottom: '1rem', width: 'fit-content' }}
+            >
+              &larr; {lang === 'ur' ? 'پیچھے' : 'Back'}
+            </button>
+
             {/* Header info */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem' }}>
               <div>
                 <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.75rem' }}>
                   {selectedOrg.name}
                 </h2>
                 <p style={{ color: 'var(--text-secondary)', marginTop: '0.25rem' }}>{selectedOrg.industry}</p>
               </div>
-              <div style={{ display: 'flex', gap: '0.5rem', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
                 <span className="badge badge-active" style={{ height: 'fit-content' }}>
                   {lang === 'ur' && selectedOrg.status === 'Active' ? 'فعال' : selectedOrg.status}
                 </span>
@@ -156,7 +169,7 @@ export default function Clients({ lang, dbData, refreshDb }) {
 
             {/* Profile Info */}
             <div className="detail-section">
-              <h3 className="detail-section-title" style={{ justifyContent: lang === 'ur' ? 'flex-start' : 'initial', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
+              <h3 className="detail-section-title">
                 <Building2 size={18} />
                 {lang === 'ur' ? 'کارپوریٹ رجسٹریشن کی تفصیلات' : 'Corporate Registry Details'}
               </h3>
@@ -167,21 +180,21 @@ export default function Clients({ lang, dbData, refreshDb }) {
                 </div>
                 <div className="info-item">
                   <span className="info-label">{t.primaryContact}</span>
-                  <span className="info-value" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
+                  <span className="info-value" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                     <User size={14} style={{ color: 'var(--text-muted)' }} />
                     {selectedOrg.primaryContact}
                   </span>
                 </div>
                 <div className="info-item">
                   <span className="info-label">{t.contactEmail}</span>
-                  <span className="info-value" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
+                  <span className="info-value" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                     <Mail size={14} style={{ color: 'var(--text-muted)' }} />
                     {selectedOrg.email}
                   </span>
                 </div>
                 <div className="info-item">
                   <span className="info-label">{t.contactPhone}</span>
-                  <span className="info-value" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
+                  <span className="info-value" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                     <Phone size={14} style={{ color: 'var(--text-muted)' }} />
                     {selectedOrg.phone}
                   </span>
@@ -191,8 +204,8 @@ export default function Clients({ lang, dbData, refreshDb }) {
 
             {/* Branches list */}
             <div className="detail-section">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
-                <h3 className="detail-section-title" style={{ margin: 0, justifyContent: lang === 'ur' ? 'flex-start' : 'initial', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                <h3 className="detail-section-title" style={{ margin: 0 }}>
                   <MapPin size={18} />
                   {t.branchesHeader}
                 </h3>
@@ -219,10 +232,10 @@ export default function Clients({ lang, dbData, refreshDb }) {
                           backgroundColor: 'var(--bg-primary)'
                         }}
                       >
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                           <div>
                             <h4 style={{ fontWeight: '600', fontSize: '1rem' }}>{branch.name}</h4>
-                            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.25rem', marginTop: '0.25rem', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
+                            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.25rem', marginTop: '0.25rem' }}>
                               <MapPin size={12} /> {branch.address}, {branch.city}
                             </p>
                           </div>
@@ -235,7 +248,7 @@ export default function Clients({ lang, dbData, refreshDb }) {
                           </button>
                         </div>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '0.75rem', fontSize: '0.8rem', color: 'var(--text-secondary)', borderTop: '1px solid var(--border-color)', paddingTop: '0.75rem', direction: lang === 'ur' ? 'rtl' : 'ltr' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '0.75rem', fontSize: '0.8rem', color: 'var(--text-secondary)', borderTop: '1px solid var(--border-color)', paddingTop: '0.75rem' }}>
                           <div>{lang === 'ur' ? 'نمائندہ رابطہ' : 'Contact'}: <strong style={{ color: 'var(--text-primary)' }}>{branch.contactPerson}</strong></div>
                           <div>{lang === 'ur' ? 'ای میل' : 'Email'}: <strong style={{ color: 'var(--text-primary)' }}>{branch.email}</strong></div>
                         </div>
@@ -248,7 +261,7 @@ export default function Clients({ lang, dbData, refreshDb }) {
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                               {branchCases.map(bc => (
-                                <div key={bc.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', padding: '0.35rem 0.5rem', backgroundColor: 'var(--bg-secondary)', borderRadius: '4px', border: '1px solid var(--border-color)', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
+                                <div key={bc.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', padding: '0.35rem 0.5rem', backgroundColor: 'var(--bg-secondary)', borderRadius: '4px', border: '1px solid var(--border-color)' }}>
                                   <span style={{ fontWeight: '500' }}>{bc.title}</span>
                                   <span className={`badge badge-${bc.priority.toLowerCase()}`} style={{ fontSize: '0.65rem', padding: '0.1rem 0.35rem' }}>{getPriorityLabel(bc.priority)}</span>
                                 </div>
@@ -265,7 +278,7 @@ export default function Clients({ lang, dbData, refreshDb }) {
 
             {/* Cases directory */}
             <div className="detail-section">
-              <h3 className="detail-section-title" style={{ justifyContent: lang === 'ur' ? 'flex-start' : 'initial', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
+              <h3 className="detail-section-title">
                 <Scale size={18} />
                 {lang === 'ur' ? 'کلائنٹ کے مقدمات کی فہرست' : 'Global Litigation Directory'}
               </h3>

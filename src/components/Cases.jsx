@@ -402,11 +402,10 @@ export default function Cases({ lang, dbData, refreshDb, selectedCaseId, setSele
           flexWrap: 'wrap',
           gap: '1rem',
           alignItems: 'center',
-          justifyContent: 'space-between',
-          flexDirection: lang === 'ur' ? 'row-reverse' : 'row'
+          justifyContent: 'space-between'
         }}
       >
-        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', flexGrow: 1, flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
+        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', flexGrow: 1 }}>
           <div style={{ position: 'relative', display: 'flex', alignItems: 'center', flexGrow: 1, minWidth: '220px' }}>
             <Search size={16} style={{ position: 'absolute', left: lang === 'en' ? '0.75rem' : 'auto', right: lang === 'ur' ? '0.75rem' : 'auto', color: 'var(--text-secondary)' }} />
             <input 
@@ -419,7 +418,7 @@ export default function Cases({ lang, dbData, refreshDb, selectedCaseId, setSele
             />
           </div>
 
-          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
             <Filter size={16} style={{ color: 'var(--text-secondary)' }} />
             
             <select className="form-control" style={{ width: 'auto', padding: '0.35rem 1.5rem 0.35rem 0.75rem' }} value={filterOrg} onChange={e => setFilterOrg(e.target.value)}>
@@ -530,7 +529,7 @@ export default function Cases({ lang, dbData, refreshDb, selectedCaseId, setSele
             </div>
             
             {/* Modal Detail Tabs */}
-            <div style={{ display: 'flex', borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
+            <div style={{ display: 'flex', borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', overflowX: 'auto', WebkitOverflowScrolling: 'touch', width: '100%' }}>
               {[
                 { id: 'overview', label: t.caseSummaryTab, icon: Info },
                 { id: 'hearings', label: `${t.hearingsTab} (${caseHearings.length})`, icon: Calendar },
@@ -545,7 +544,8 @@ export default function Cases({ lang, dbData, refreshDb, selectedCaseId, setSele
                     key={tab.id}
                     onClick={() => setActiveDetailTab(tab.id)}
                     style={{
-                      flex: 1,
+                      flex: '1 0 auto',
+                      whiteSpace: 'nowrap',
                       padding: '0.75rem 1rem',
                       background: 'transparent',
                       border: 'none',
@@ -557,8 +557,7 @@ export default function Cases({ lang, dbData, refreshDb, selectedCaseId, setSele
                       alignItems: 'center',
                       justifyContent: 'center',
                       gap: '0.5rem',
-                      cursor: 'pointer',
-                      flexDirection: lang === 'ur' ? 'row-reverse' : 'row'
+                      cursor: 'pointer'
                     }}
                   >
                     <TabIcon size={14} />

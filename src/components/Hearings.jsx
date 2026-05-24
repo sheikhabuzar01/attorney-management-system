@@ -187,13 +187,13 @@ export default function Hearings({ lang, dbData, refreshDb, setSelectedCaseId, s
       
       {/* Left Column: Visual Calendar grid */}
       <div className="dashboard-panel" style={{ height: '100%', overflowY: 'auto' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
-            <h3 className="panel-title" style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <h3 className="panel-title" style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
               <Calendar size={18} />
               {lang === 'ur' ? 'عدالتی پیشی اور سماعتوں کا کیلنڈر' : 'Litigation Docket Calendar'}
             </h3>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', marginLeft: lang === 'en' ? '1rem' : '0', marginRight: lang === 'ur' ? '1rem' : '0', border: '1px solid var(--border-color)', borderRadius: '6px', overflow: 'hidden', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', marginLeft: lang === 'en' ? '1rem' : '0', marginRight: lang === 'ur' ? '1rem' : '0', border: '1px solid var(--border-color)', borderRadius: '6px', overflow: 'hidden' }}>
               <button className="btn btn-secondary" style={{ padding: '0.25rem 0.5rem', border: 'none' }} onClick={handlePrevMonth}>
                 <ChevronLeft size={16} />
               </button>

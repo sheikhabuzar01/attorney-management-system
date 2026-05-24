@@ -248,8 +248,8 @@ export default function NotificationCenter({ lang, dbData, setActiveTab, setSele
 
       {isOpen && (
         <div className="notif-dropdown" style={{ textAlign: isRTL ? 'right' : 'left' }}>
-          <div className="notif-dropdown-header" style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 600, fontSize: '0.85rem', flexDirection: isRTL ? 'row-reverse' : 'row' }}>
+          <div className="notif-dropdown-header">
+            <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 600, fontSize: '0.85rem' }}>
               <Bell size={14} /> {t.notifications}
               {unreadCount > 0 && <span className="badge badge-high" style={{ fontSize: '0.65rem', padding: '0.1rem 0.4rem' }}>{unreadCount}</span>}
             </span>
@@ -258,7 +258,7 @@ export default function NotificationCenter({ lang, dbData, setActiveTab, setSele
                 type="button"
                 className="btn btn-secondary btn-sm"
                 onClick={markAllRead}
-                style={{ padding: '0.2rem 0.55rem', fontSize: '0.72rem', display: 'flex', alignItems: 'center', gap: '0.3rem', flexDirection: isRTL ? 'row-reverse' : 'row' }}
+                style={{ padding: '0.2rem 0.55rem', fontSize: '0.72rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
               >
                 <Check size={11} /> {t.markAllRead}
               </button>
@@ -302,7 +302,7 @@ export default function NotificationCenter({ lang, dbData, setActiveTab, setSele
           </div>
 
           {permission !== 'unsupported' && (
-            <div className="notif-dropdown-footer" style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
+            <div className="notif-dropdown-footer">
               {permission === 'granted' && (
                 <span className="notif-perm-on">
                   <Check size={11} /> {t.browserAlertsEnabled}

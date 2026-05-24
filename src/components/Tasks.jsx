@@ -142,11 +142,10 @@ export default function Tasks({ lang, dbData, refreshDb, setSelectedCaseId, setA
           flexWrap: 'wrap',
           gap: '1rem',
           alignItems: 'center',
-          justifyContent: 'space-between',
-          flexDirection: lang === 'ur' ? 'row-reverse' : 'row'
+          justifyContent: 'space-between'
         }}
       >
-        <div style={{ display: 'flex', flexGrow: 1, gap: '1rem', flexWrap: 'wrap', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
+        <div style={{ display: 'flex', flexGrow: 1, gap: '1rem', flexWrap: 'wrap' }}>
           <div style={{ position: 'relative', display: 'flex', alignItems: 'center', flexGrow: 1, minWidth: '220px' }}>
             <Search size={16} style={{ position: 'absolute', left: lang === 'en' ? '0.75rem' : 'auto', right: lang === 'ur' ? '0.75rem' : 'auto', color: 'var(--text-secondary)' }} />
             <input 

@@ -62,8 +62,7 @@ export default function Contacts({ lang, dbData }) {
           flexWrap: 'wrap',
           gap: '1rem',
           alignItems: 'center',
-          justifyContent: 'space-between',
-          flexDirection: isRTL ? 'row-reverse' : 'row'
+          justifyContent: 'space-between'
         }}
       >
         <div style={{ position: 'relative', display: 'flex', alignItems: 'center', flex: '1 1 240px', minWidth: 0 }}>
@@ -100,8 +99,7 @@ export default function Contacts({ lang, dbData }) {
             color: 'var(--primary)',
             borderRadius: 'var(--radius-md)',
             fontSize: '0.85rem',
-            fontWeight: 600,
-            flexDirection: isRTL ? 'row-reverse' : 'row'
+            fontWeight: 600
           }}
         >
           <Users size={16} />

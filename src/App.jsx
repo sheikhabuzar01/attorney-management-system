@@ -206,8 +206,8 @@ export default function App() {
       />
       
       <main className="main-content">
-        <header className="top-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexDirection: lang === 'ur' ? 'row-reverse' : 'row', minWidth: 0, flex: 1 }}>
+        <header className="top-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0, flex: 1 }}>
             <button
               className="mobile-toggle"
               onClick={() => setIsSidebarOpen(true)}
@@ -230,7 +230,7 @@ export default function App() {
             setSelectedCaseId={setSelectedCaseId}
           />
 
-          <div className="header-actions" style={{ gap: '0.5rem', flexDirection: lang === 'ur' ? 'row-reverse' : 'row' }}>
+          <div className="header-actions" style={{ gap: '0.5rem' }}>
             {/* Notifications */}
             <NotificationCenter
               lang={lang}

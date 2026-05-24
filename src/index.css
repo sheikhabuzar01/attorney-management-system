@@ -1815,6 +1815,52 @@ textarea.form-control {
   }
 }
 
+/* Mobile responsive utility classes */
+.show-on-mobile {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  .hide-on-mobile {
+    display: none !important;
+  }
+  .show-on-mobile {
+    display: block !important;
+  }
+  button.show-on-mobile,
+  .btn.show-on-mobile {
+    display: inline-flex !important;
+  }
+  
+  /* Tables horizontal scroll prevention of squeezing */
+  .custom-table {
+    min-width: 850px !important;
+  }
+}
+
+@media (max-width: 576px) {
+  /* Calendar cell event dot styling on small mobile */
+  .calendar-event-dot {
+    font-size: 0 !important;
+    width: 8px !important;
+    height: 8px !important;
+    min-height: 8px !important;
+    border-radius: 50% !important;
+    padding: 0 !important;
+    margin: 4px auto !important;
+    display: block !important;
+  }
+  
+  .calendar-events {
+    margin-top: 0.5rem !important;
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    gap: 3px !important;
+  }
+}
+
 /* ------------------ Print / PDF Export ------------------ */
 .case-print-report,
 .invoice-print-report {
