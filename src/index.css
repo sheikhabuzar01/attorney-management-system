@@ -412,6 +412,7 @@ button, input, select, textarea {
   color: var(--text-secondary);
   font-weight: 600;
   border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
 }
 
 .custom-table td {
