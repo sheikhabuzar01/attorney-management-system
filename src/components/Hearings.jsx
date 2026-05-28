@@ -187,7 +187,7 @@ export default function Hearings({ lang, dbData, refreshDb, setSelectedCaseId, s
       
       {/* Left Column: Visual Calendar grid */}
       <div className="dashboard-panel" style={{ height: '100%', overflowY: 'auto' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}>
+        <div className="hearing-cal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <h3 className="panel-title" style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
               <Calendar size={18} />

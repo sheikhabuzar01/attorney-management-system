@@ -1429,6 +1429,12 @@ textarea.form-control {
     justify-content: center;
   }
 
+  /* Hearing calendar header: Schedule Hearing button on its own full-width row */
+  .hearing-cal-header > .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
   /* Tighter modal */
   .modal-overlay {
     padding: 0;
