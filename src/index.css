@@ -1162,6 +1162,12 @@ textarea.form-control {
   /* Dashboard panel padding */
   .dashboard-panel {
     padding: 1rem;
+    min-width: 0;
+  }
+
+  /* Prevent grid/flex column containers from blowing past their track */
+  .dashboard-grid > div {
+    min-width: 0;
   }
 
   .panel-header {
@@ -1203,9 +1209,14 @@ textarea.form-control {
   }
 
   /* Tables - allow horizontal scroll, slightly smaller */
+  .custom-table-wrapper {
+    width: 100%;
+    min-width: 0;
+  }
+
   .custom-table {
     font-size: 0.8rem;
-    min-width: 520px;
+    min-width: 480px;
   }
 
   .custom-table th,
@@ -1832,10 +1843,6 @@ textarea.form-control {
     display: inline-flex !important;
   }
   
-  /* Tables horizontal scroll prevention of squeezing */
-  .custom-table {
-    min-width: 850px !important;
-  }
 }
 
 @media (max-width: 576px) {
