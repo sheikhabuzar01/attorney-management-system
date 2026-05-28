@@ -481,8 +481,8 @@ export default function Cases({ lang, dbData, refreshDb, selectedCaseId, setSele
                       style={{ cursor: 'pointer', transition: 'background-color 0.15s' }}
                     >
                       <td>
-                        <div style={{ fontWeight: '600' }}>{c.title}</div>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.1rem' }}>{c.caseNumber}</div>
+                        <div className="case-cell-title">{c.title}</div>
+                        <div className="case-cell-number">{c.caseNumber}</div>
                       </td>
                       <td>{org ? org.name : 'Unknown'}</td>
                       <td>{branch ? branch.name.split(' (')[0] : 'HQ'}</td>
