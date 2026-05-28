@@ -1177,7 +1177,10 @@ textarea.form-control {
   }
 
   .panel-title {
-    font-size: 1rem;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   /* Stat cards tighter */
@@ -1402,8 +1405,8 @@ textarea.form-control {
     min-width: 0;
   }
 
-  /* Cases filter bar: stretch "Open Case" button full-width when it wraps */
-  .cases-filter-bar > .btn {
+  /* Filter bars (Cases, Tasks): stretch primary action button full-width when it wraps */
+  .filter-bar > .btn {
     width: 100%;
     justify-content: center;
   }

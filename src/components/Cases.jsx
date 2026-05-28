@@ -393,7 +393,7 @@ export default function Cases({ lang, dbData, refreshDb, selectedCaseId, setSele
       
       {/* Search and Filters panel */}
       <div
-        className="cases-filter-bar"
+        className="filter-bar"
         style={{
           background: 'var(--bg-secondary)',
           border: '1px solid var(--border-color)',

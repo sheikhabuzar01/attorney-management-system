@@ -132,21 +132,22 @@ export default function Tasks({ lang, dbData, refreshDb, setSelectedCaseId, setA
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       
       {/* Search and Filters panel */}
-      <div 
-        style={{ 
-          background: 'var(--bg-secondary)', 
-          border: '1px solid var(--border-color)', 
-          borderRadius: 'var(--radius-lg)', 
-          padding: '1rem 1.5rem',
+      <div
+        className="filter-bar"
+        style={{
+          background: 'var(--bg-secondary)',
+          border: '1px solid var(--border-color)',
+          borderRadius: 'var(--radius-lg)',
+          padding: '1rem',
           display: 'flex',
           flexWrap: 'wrap',
-          gap: '1rem',
+          gap: '0.75rem',
           alignItems: 'center',
           justifyContent: 'space-between'
         }}
       >
-        <div style={{ display: 'flex', flexGrow: 1, gap: '1rem', flexWrap: 'wrap' }}>
-          <div style={{ position: 'relative', display: 'flex', alignItems: 'center', flexGrow: 1, minWidth: '220px' }}>
+        <div style={{ display: 'flex', flexGrow: 1, gap: '0.75rem', flexWrap: 'wrap', minWidth: 0 }}>
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center', flexGrow: 1, minWidth: '180px' }}>
             <Search size={16} style={{ position: 'absolute', left: lang === 'en' ? '0.75rem' : 'auto', right: lang === 'ur' ? '0.75rem' : 'auto', color: 'var(--text-secondary)' }} />
             <input 
               type="text" 
