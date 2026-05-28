@@ -392,21 +392,22 @@ export default function Cases({ lang, dbData, refreshDb, selectedCaseId, setSele
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       
       {/* Search and Filters panel */}
-      <div 
-        style={{ 
-          background: 'var(--bg-secondary)', 
-          border: '1px solid var(--border-color)', 
-          borderRadius: 'var(--radius-lg)', 
-          padding: '1rem 1.5rem',
+      <div
+        className="cases-filter-bar"
+        style={{
+          background: 'var(--bg-secondary)',
+          border: '1px solid var(--border-color)',
+          borderRadius: 'var(--radius-lg)',
+          padding: '1rem',
           display: 'flex',
           flexWrap: 'wrap',
-          gap: '1rem',
+          gap: '0.75rem',
           alignItems: 'center',
           justifyContent: 'space-between'
         }}
       >
-        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', flexGrow: 1 }}>
-          <div style={{ position: 'relative', display: 'flex', alignItems: 'center', flexGrow: 1, minWidth: '220px' }}>
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', flexGrow: 1, minWidth: 0 }}>
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center', flexGrow: 1, minWidth: '180px' }}>
             <Search size={16} style={{ position: 'absolute', left: lang === 'en' ? '0.75rem' : 'auto', right: lang === 'ur' ? '0.75rem' : 'auto', color: 'var(--text-secondary)' }} />
             <input 
               type="text" 
@@ -418,8 +419,8 @@ export default function Cases({ lang, dbData, refreshDb, selectedCaseId, setSele
             />
           </div>
 
-          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-            <Filter size={16} style={{ color: 'var(--text-secondary)' }} />
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+            <Filter size={16} style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
             
             <select className="form-control" style={{ width: 'auto', padding: '0.35rem 1.5rem 0.35rem 0.75rem' }} value={filterOrg} onChange={e => setFilterOrg(e.target.value)}>
               <option value="all">{t.allClients}</option>
