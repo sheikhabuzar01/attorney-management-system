@@ -76,8 +76,8 @@ export const translations = {
     desktopNotifGreeting: "LexSuite",
     desktopNotifBody: "You have {{count}} pending alert(s).",
     // Time & Billing
-    timeBilling: "Time & Billing",
-    timeBillingTitle: "Time Tracking & Invoicing",
+    timeBilling: "Invoice",
+    timeBillingTitle: "Invoice",
     timeLogTab: "Time Log",
     invoicesTab: "Invoices",
     addTimeEntryBtn: "Log Time",
@@ -364,8 +364,8 @@ export const translations = {
     desktopNotifGreeting: "لیکس سویٹ",
     desktopNotifBody: "آپ کے پاس {{count}} زیر التواء الرٹس ہیں۔",
     // Time & Billing
-    timeBilling: "وقت اور بلنگ",
-    timeBillingTitle: "وقت کا ریکارڈ اور انوائسنگ",
+    timeBilling: "انوائس",
+    timeBillingTitle: "انوائس",
     timeLogTab: "وقت کا لاگ",
     invoicesTab: "انوائسز",
     addTimeEntryBtn: "وقت درج کریں",
