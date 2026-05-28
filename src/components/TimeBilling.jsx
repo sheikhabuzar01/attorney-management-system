@@ -66,6 +66,33 @@ export default function TimeBilling({ lang, dbData, refreshDb, setActiveTab, set
     return stored > 0 ? stored : 0;
   });
 
+  // Quick-add time entry draft
+  const todayIso = new Date().toISOString().split('T')[0];
+  const [timeDraft, setTimeDraft] = useState({
+    caseId: cases[0]?.id || '',
+    date: todayIso,
+    hours: '',
+    rate: parseFloat(localStorage.getItem('lexsuite_default_rate') || '0') || 0,
+    description: '',
+    attorneyName: ''
+  });
+
+  const handleAddTimeEntry = (e) => {
+    e.preventDefault();
+    if (!timeDraft.caseId || !timeDraft.hours || Number(timeDraft.hours) <= 0) return;
+    db.addTimeEntry({
+      caseId: timeDraft.caseId,
+      date: timeDraft.date,
+      hours: Number(timeDraft.hours),
+      rate: Number(timeDraft.rate),
+      description: timeDraft.description.trim(),
+      attorneyName: timeDraft.attorneyName.trim()
+    });
+    if (timeDraft.rate > 0) localStorage.setItem('lexsuite_default_rate', String(timeDraft.rate));
+    setTimeDraft(d => ({ ...d, hours: '', description: '', date: new Date().toISOString().split('T')[0] }));
+    refreshDb();
+  };
+
   // Invoice draft (when creating)
   const [invoiceDraft, setInvoiceDraft] = useState({
     invoiceNumber: '',
@@ -272,6 +299,100 @@ export default function TimeBilling({ lang, dbData, refreshDb, setActiveTab, set
       {/* TIME LOG SUB-TAB */}
       {activeSubTab === 'time' && (
         <>
+          {/* Quick-add time entry form */}
+          <form
+            onSubmit={handleAddTimeEntry}
+            style={{
+              background: 'var(--bg-secondary)',
+              border: '1px solid var(--border-color)',
+              borderRadius: 'var(--radius-lg)',
+              padding: '1rem 1.25rem',
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '0.65rem',
+              alignItems: 'flex-end'
+            }}
+          >
+            <div style={{ flex: '1 1 160px', minWidth: 0 }}>
+              <label className="form-label" style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{t.clientCol} / {t.caseTitleCol}</label>
+              <select
+                className="form-control"
+                style={{ fontSize: '0.82rem', padding: '0.38rem 0.55rem' }}
+                required
+                value={timeDraft.caseId}
+                onChange={e => setTimeDraft(d => ({ ...d, caseId: e.target.value }))}
+              >
+                <option value="">{lang === 'ur' ? '-- مقدمہ منتخب کریں --' : '-- Select Case --'}</option>
+                {cases.map(c => <option key={c.id} value={c.id}>{c.title}</option>)}
+              </select>
+            </div>
+            <div style={{ flex: '0 1 130px', minWidth: 0 }}>
+              <label className="form-label" style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{t.timeEntryDate}</label>
+              <input
+                type="date"
+                className="form-control"
+                style={{ fontSize: '0.82rem', padding: '0.38rem 0.55rem' }}
+                required
+                value={timeDraft.date}
+                onChange={e => setTimeDraft(d => ({ ...d, date: e.target.value }))}
+              />
+            </div>
+            <div style={{ flex: '0 1 90px', minWidth: 0 }}>
+              <label className="form-label" style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{t.timeEntryHours}</label>
+              <input
+                type="number"
+                step="0.25"
+                min="0.25"
+                className="form-control"
+                style={{ fontSize: '0.82rem', padding: '0.38rem 0.55rem' }}
+                required
+                placeholder="1.5"
+                value={timeDraft.hours}
+                onChange={e => setTimeDraft(d => ({ ...d, hours: e.target.value }))}
+              />
+            </div>
+            <div style={{ flex: '0 1 110px', minWidth: 0 }}>
+              <label className="form-label" style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{t.timeEntryRate}</label>
+              <input
+                type="number"
+                step="100"
+                min="0"
+                className="form-control"
+                style={{ fontSize: '0.82rem', padding: '0.38rem 0.55rem' }}
+                placeholder="5000"
+                value={timeDraft.rate}
+                onChange={e => setTimeDraft(d => ({ ...d, rate: e.target.value }))}
+              />
+            </div>
+            <div style={{ flex: '2 1 180px', minWidth: 0 }}>
+              <label className="form-label" style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{t.timeEntryDescription}</label>
+              <input
+                type="text"
+                className="form-control"
+                style={{ fontSize: '0.82rem', padding: '0.38rem 0.55rem' }}
+                placeholder={t.timeEntryDescriptionPlaceholder}
+                value={timeDraft.description}
+                onChange={e => setTimeDraft(d => ({ ...d, description: e.target.value }))}
+              />
+            </div>
+            <div style={{ flex: '1 1 140px', minWidth: 0 }}>
+              <label className="form-label" style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{t.timeEntryAttorney}</label>
+              <input
+                type="text"
+                className="form-control"
+                style={{ fontSize: '0.82rem', padding: '0.38rem 0.55rem' }}
+                placeholder={t.timeEntryAttorneyPlaceholder}
+                value={timeDraft.attorneyName}
+                onChange={e => setTimeDraft(d => ({ ...d, attorneyName: e.target.value }))}
+              />
+            </div>
+            <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+              <button type="submit" className="btn btn-primary btn-sm" style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                <Plus size={13} /> {t.saveTimeEntry}
+              </button>
+            </div>
+          </form>
+
           {/* Filters bar */}
           <div
             style={{
