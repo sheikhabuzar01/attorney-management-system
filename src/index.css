@@ -1187,10 +1187,14 @@ textarea.form-control {
   }
 
   .panel-title {
-    font-size: 0.9rem;
+    font-size: 0.775rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  .hearing-month-label {
+    font-size: 0.725rem !important;
   }
 
   /* Stat cards tighter */

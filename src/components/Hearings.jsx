@@ -197,7 +197,7 @@ export default function Hearings({ lang, dbData, refreshDb, setSelectedCaseId, s
               <button className="btn btn-secondary" style={{ padding: '0.25rem 0.5rem', border: 'none' }} onClick={handlePrevMonth}>
                 <ChevronLeft size={16} />
               </button>
-              <span style={{ fontSize: '0.85rem', fontWeight: 'bold', padding: '0 0.5rem', whiteSpace: 'nowrap' }}>
+              <span className="hearing-month-label" style={{ fontSize: '0.85rem', fontWeight: 'bold', padding: '0 0.5rem', whiteSpace: 'nowrap' }}>
                 {monthNames[currentMonth]} {currentYear}
               </span>
               <button className="btn btn-secondary" style={{ padding: '0.25rem 0.5rem', border: 'none' }} onClick={handleNextMonth}>
