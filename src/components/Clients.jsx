@@ -303,8 +303,8 @@ export default function Clients({ lang, dbData, refreshDb }) {
                         return (
                           <tr key={c.id}>
                             <td>
-                              <div style={{ fontWeight: '600' }}>{c.title}</div>
-                              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{c.caseNumber}</div>
+                              <div className="case-cell-title" style={{ fontWeight: '600' }}>{c.title}</div>
+                              <div className="case-cell-number">{c.caseNumber}</div>
                             </td>
                             <td>{br ? br.name.split(' (')[0] : 'N/A'}</td>
                             <td>

@@ -1242,12 +1242,17 @@ textarea.form-control {
     padding: 0.6rem 0.65rem;
   }
 
+  /* First-cell content: ~2px smaller than table base (0.8rem = 12.8px → 10.8px) */
+  .custom-table td:first-child {
+    font-size: 0.675rem;
+  }
+
   .case-cell-title {
-    font-size: 0.72rem;
+    font-size: 0.675rem;
   }
 
   .case-cell-number {
-    font-size: 0.65rem;
+    font-size: 0.6rem;
   }
 
   /* Calendar day cell sizing */

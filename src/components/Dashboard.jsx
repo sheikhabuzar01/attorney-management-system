@@ -134,8 +134,8 @@ export default function Dashboard({ lang, dbData, setActiveTab, setSelectedCaseI
                       return (
                         <tr key={c.id}>
                           <td>
-                            <div style={{ fontWeight: '600' }}>{c.title}</div>
-                            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{c.caseNumber}</div>
+                            <div className="case-cell-title" style={{ fontWeight: '600' }}>{c.title}</div>
+                            <div className="case-cell-number">{c.caseNumber}</div>
                           </td>
                           <td>{org ? org.name : 'Unknown'}</td>
                           <td>
@@ -175,8 +175,8 @@ export default function Dashboard({ lang, dbData, setActiveTab, setSelectedCaseI
                   {cases.slice(0, 4).map((c) => (
                     <tr key={c.id} onClick={() => handleCaseClick(c.id)} style={{ cursor: 'pointer' }}>
                       <td>
-                        <div style={{ fontWeight: '500' }}>{c.title}</div>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{c.caseNumber}</div>
+                        <div className="case-cell-title" style={{ fontWeight: '500' }}>{c.title}</div>
+                        <div className="case-cell-number">{c.caseNumber}</div>
                       </td>
                       <td style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{c.court}</td>
                       <td>
