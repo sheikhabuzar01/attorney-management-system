@@ -15,8 +15,15 @@ import NotificationCenter from './components/NotificationCenter';
 import Login from './components/Login';
 import { Sun, Moon, LogOut, Languages, Menu } from 'lucide-react';
 
+// Toggle to re-enable the login screen later. When false, auth is bypassed
+// and the app loads directly with a default user.
+const AUTH_ENABLED = false;
+
+const DEFAULT_USER = { email: 'admin@lexsuite.com', name: 'Attorney Counsel', role: 'Managing Partner' };
+
 export default function App() {
   const [user, setUser] = useState(() => {
+    if (!AUTH_ENABLED) return DEFAULT_USER;
     const saved = localStorage.getItem('lexsuite_user');
     return saved ? JSON.parse(saved) : null;
   });
@@ -66,7 +73,8 @@ export default function App() {
 
   const handleLogout = () => {
     localStorage.removeItem('lexsuite_user');
-    setUser(null);
+    // Auth is disabled, so fall back to the default user instead of the login screen.
+    setUser(AUTH_ENABLED ? null : DEFAULT_USER);
     setActiveTab('dashboard'); // Reset
   };
 
@@ -171,8 +179,8 @@ export default function App() {
     }
   };
 
-  // If not authenticated, render Login view
-  if (!user) {
+  // If not authenticated, render Login view (auth is currently disabled via AUTH_ENABLED)
+  if (AUTH_ENABLED && !user) {
     return <Login lang={lang} onLogin={handleLogin} toggleLanguage={toggleLanguage} />;
   }
 
